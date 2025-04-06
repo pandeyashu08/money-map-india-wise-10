@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -20,7 +19,6 @@ import { useForm } from "react-hook-form";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-// Income sections for old and new regimes
 const TaxCalculator: React.FC = () => {
   const [calculatorMode, setCalculatorMode] = useState<'simple' | 'advanced'>('simple');
   const [assessmentYear, setAssessmentYear] = useState<'2024-25' | '2025-26' | '2026-27'>('2025-26');
@@ -32,13 +30,11 @@ const TaxCalculator: React.FC = () => {
   const [capitalGains, setCapitalGains] = useState<number>(0);
   const [rentalIncome, setRentalIncome] = useState<number>(0);
   
-  // Exemptions
   const [hra, setHra] = useState<number>(0);
   const [lta, setLta] = useState<number>(0);
   const [professionalTax, setProfessionalTax] = useState<number>(2400);
   const [totalExemptions, setTotalExemptions] = useState<number>(2400);
   
-  // Deductions for old regime
   const [section80C, setSection80C] = useState<number>(150000);
   const [section80D, setSection80D] = useState<number>(25000);
   const [nps, setNps] = useState<number>(50000);
@@ -48,7 +44,7 @@ const TaxCalculator: React.FC = () => {
   const [standardDeduction, setStandardDeduction] = useState<boolean>(true);
   const [employmentType, setEmploymentType] = useState<'private' | 'government'>('private');
   const [employerNpsContribution, setEmployerNpsContribution] = useState<number>(0);
-  const [basicSalary, setBasicSalary] = useState<number>(500000); // 50% of salary by default
+  const [basicSalary, setBasicSalary] = useState<number>(500000);
   
   const [oldRegimeTax, setOldRegimeTax] = useState<number>(0);
   const [newRegimeTax, setNewRegimeTax] = useState<number>(0);
@@ -62,7 +58,6 @@ const TaxCalculator: React.FC = () => {
   const [selectedRegime, setSelectedRegime] = useState<'old' | 'new'>('old');
   const [showResults, setShowResults] = useState<boolean>(false);
 
-  // Calculate taxes whenever inputs change
   useEffect(() => {
     let grossTotalIncome = salaryIncome;
     
@@ -72,16 +67,13 @@ const TaxCalculator: React.FC = () => {
     
     setTotalIncome(grossTotalIncome);
     
-    // Calculate exemptions total
     const exemptionsTotal = hra + lta + professionalTax;
     setTotalExemptions(exemptionsTotal);
     
-    // Apply deductions for old regime
     let taxableIncomeOldRegime = grossTotalIncome - exemptionsTotal;
     
-    // Standard deduction
     if (standardDeduction) {
-      taxableIncomeOldRegime -= 50000; // ₹50,000 for old regime
+      taxableIncomeOldRegime -= 50000;
     }
     
     if (hasOtherDeductions) {
@@ -94,11 +86,10 @@ const TaxCalculator: React.FC = () => {
       taxableIncomeOldRegime -= (eligible80C + eligible80D + eligibleNPS + eligibleHousingLoan + eligibleEducationLoan);
     }
     
-    // Employer NPS contribution
     if (employerNpsContribution > 0) {
       const maxNpsLimit = employmentType === 'private' 
-        ? basicSalary * 0.14 // 14% for private
-        : basicSalary * 0.10; // 10% for government
+        ? basicSalary * 0.14
+        : basicSalary * 0.10;
       
       const eligibleEmployerNps = Math.min(employerNpsContribution, maxNpsLimit);
       taxableIncomeOldRegime -= eligibleEmployerNps;
@@ -106,53 +97,47 @@ const TaxCalculator: React.FC = () => {
     
     taxableIncomeOldRegime = Math.max(0, taxableIncomeOldRegime);
     
-    // For new regime
     let taxableIncomeNewRegime = grossTotalIncome;
     
-    // Standard deduction for new regime is ₹75,000
     if (standardDeduction) {
       taxableIncomeNewRegime -= 75000;
     }
     
     taxableIncomeNewRegime = Math.max(0, taxableIncomeNewRegime);
     
-    // Calculate basic tax
     const oldBasicTax = calculateOldRegimeTax(taxableIncomeOldRegime);
     const newBasicTax = calculateNewRegimeTax(taxableIncomeNewRegime);
     
-    // Calculate surcharge
     let oldSurcharge = 0;
     let newSurcharge = 0;
     
     if (taxableIncomeOldRegime > 5000000) {
       if (taxableIncomeOldRegime <= 10000000) {
-        oldSurcharge = oldBasicTax * 0.10; // 10% surcharge
+        oldSurcharge = oldBasicTax * 0.10;
       } else if (taxableIncomeOldRegime <= 20000000) {
-        oldSurcharge = oldBasicTax * 0.15; // 15% surcharge
+        oldSurcharge = oldBasicTax * 0.15;
       } else if (taxableIncomeOldRegime <= 50000000) {
-        oldSurcharge = oldBasicTax * 0.25; // 25% surcharge
+        oldSurcharge = oldBasicTax * 0.25;
       } else {
-        oldSurcharge = oldBasicTax * 0.37; // 37% surcharge
+        oldSurcharge = oldBasicTax * 0.37;
       }
     }
     
     if (taxableIncomeNewRegime > 5000000) {
       if (taxableIncomeNewRegime <= 10000000) {
-        newSurcharge = newBasicTax * 0.10; // 10% surcharge
+        newSurcharge = newBasicTax * 0.10;
       } else if (taxableIncomeNewRegime <= 20000000) {
-        newSurcharge = newBasicTax * 0.15; // 15% surcharge
+        newSurcharge = newBasicTax * 0.15;
       } else if (taxableIncomeNewRegime <= 50000000) {
-        newSurcharge = newBasicTax * 0.25; // 25% surcharge
+        newSurcharge = newBasicTax * 0.25;
       } else {
-        newSurcharge = newBasicTax * 0.37; // 37% surcharge
+        newSurcharge = newBasicTax * 0.37;
       }
     }
     
-    // Calculate cess (4% of tax + surcharge)
     const oldCess = (oldBasicTax + oldSurcharge) * 0.04;
     const newCess = (newBasicTax + newSurcharge) * 0.04;
     
-    // Calculate total tax
     const oldTotal = oldBasicTax + oldSurcharge + oldCess;
     const newTotal = newBasicTax + newSurcharge + newCess;
     
@@ -165,7 +150,6 @@ const TaxCalculator: React.FC = () => {
     setOldRegimeTotal(oldTotal);
     setNewRegimeTotal(newTotal);
     
-    // Auto-select the better regime
     if (newTotal < oldTotal) {
       setSelectedRegime('new');
     } else {
@@ -193,13 +177,11 @@ const TaxCalculator: React.FC = () => {
     basicSalary
   ]);
   
-  // Data for comparison chart
   const taxComparisonData = [
     { name: 'Old Regime', value: oldRegimeTotal, color: '#0466C8' },
     { name: 'New Regime', value: newRegimeTotal, color: '#38B000' }
   ];
   
-  // Tax breakdown data for old regime
   const oldRegimeBreakdown = [
     { name: 'Gross Total Income', value: totalIncome },
     { name: 'Total Exemptions', value: totalExemptions },
@@ -220,7 +202,6 @@ const TaxCalculator: React.FC = () => {
     { name: 'Total Tax Liability', value: oldRegimeTotal }
   ];
   
-  // Tax breakdown data for new regime
   const newRegimeBreakdown = [
     { name: 'Gross Total Income', value: totalIncome },
     { name: 'Standard Deduction', value: standardDeduction ? 75000 : 0 },
@@ -231,38 +212,30 @@ const TaxCalculator: React.FC = () => {
     { name: 'Total Tax Liability', value: newRegimeTotal }
   ];
   
-  // Recommendations based on tax calculation
   const taxSavings = Math.max(oldRegimeTotal, newRegimeTotal) - Math.min(oldRegimeTotal, newRegimeTotal);
   const betterRegime = newRegimeTotal < oldRegimeTotal ? 'new' : 'old';
   
-  // Get tax recommendations
   const getTaxRecommendations = () => {
     const recommendations = [];
     
-    // Regime recommendation
     recommendations.push(`The ${betterRegime} tax regime is better for you, saving you ${formatCurrency(taxSavings)}`);
     
-    // 80C recommendations
     if (betterRegime === 'old' && section80C < 150000) {
       recommendations.push(`Invest ${formatCurrency(150000 - section80C)} more in 80C options like ELSS, PPF, or EPF to maximize your tax benefits`);
     }
     
-    // NPS recommendation
     if (betterRegime === 'old' && nps < 50000) {
       recommendations.push(`Consider investing ${formatCurrency(50000 - nps)} more in NPS to get additional tax benefits under 80CCD(1B)`);
     }
     
-    // Health insurance recommendation
     if (betterRegime === 'old' && section80D < 25000) {
       recommendations.push(`Get health insurance coverage to utilize remaining ${formatCurrency(25000 - section80D)} deduction under section 80D`);
     }
     
-    // HRA recommendation
     if (hra === 0) {
       recommendations.push("If you're paying rent, claim HRA exemption by submitting rent receipts to your employer");
     }
     
-    // Home loan recommendation
     if (housingLoanInterest === 0) {
       recommendations.push("Consider home loan to avail interest deduction up to ₹2,00,000 under Section 24B");
     }
@@ -274,7 +247,6 @@ const TaxCalculator: React.FC = () => {
   
   const handleCalculate = () => {
     setShowResults(true);
-    // Scroll to results section
     setTimeout(() => {
       const resultsElement = document.getElementById('tax-results');
       if (resultsElement) {
@@ -324,7 +296,6 @@ const TaxCalculator: React.FC = () => {
       </div>
       
       <div className="grid gap-6 md:grid-cols-2">
-        {/* Income Details Card */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -446,7 +417,6 @@ const TaxCalculator: React.FC = () => {
           </CardContent>
         </Card>
         
-        {/* Exemptions & Deductions Card */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -557,14 +527,14 @@ const TaxCalculator: React.FC = () => {
                         <label className="text-sm text-muted-foreground">Employment Type:</label>
                         <div className="flex space-x-2">
                           <div className="flex items-center space-x-1">
-                            <RadioGroupItem name="employment-type" value="private" id="private" 
+                            <RadioGroupItem value="private" id="private" 
                               checked={employmentType === 'private'}
                               onClick={() => setEmploymentType('private')}
                             />
                             <Label htmlFor="private" className="text-sm">Private</Label>
                           </div>
                           <div className="flex items-center space-x-1">
-                            <RadioGroupItem name="employment-type" value="government" id="government" 
+                            <RadioGroupItem value="government" id="government" 
                               checked={employmentType === 'government'}
                               onClick={() => setEmploymentType('government')}
                             />
