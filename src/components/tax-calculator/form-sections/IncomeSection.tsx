@@ -3,7 +3,8 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { BadgeIndianRupee, Info, Building, Briefcase, TrendingUp } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { BadgeIndianRupee, Info, Building, Briefcase, TrendingUp, ChevronDown, Home, Receipt } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatCurrency } from '@/utils/financialUtils';
 import { useTaxData } from '../TaxDataContext';
@@ -30,10 +31,20 @@ const IncomeSection: React.FC = () => {
     
     receivesHRA,
     setReceivesHRA,
+    hraAmount,
+    setHraAmount,
+    rentPaid,
+    setRentPaid,
     isMetroCity,
     setIsMetroCity,
     hasHomeLoan,
     setHasHomeLoan,
+    hraExemption,
+    
+    tdsPaid,
+    setTdsPaid,
+    tcsPaid,
+    setTcsPaid,
     
     calculatorMode
   } = useTaxData();
@@ -70,58 +81,100 @@ const IncomeSection: React.FC = () => {
           />
         </div>
         
-        {calculatorMode === 'advanced' && (
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Basic Salary + DA
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info className="h-3.5 w-3.5 text-muted-foreground inline ml-1 cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="w-80">Enter your basic salary and dearness allowance (usually 40-60% of CTC)</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </label>
-            <Input
-              type="number"
-              value={basicSalary}
-              onChange={(e) => setBasicSalary(Number(e.target.value) || 0)}
-              placeholder="e.g., 500000"
-            />
-          </div>
-        )}
-        
-        <div className="flex flex-col space-y-2">
-          <div className="flex items-start space-x-2">
-            <Checkbox 
-              id="receives-hra" 
-              checked={receivesHRA}
-              onCheckedChange={(checked) => setReceivesHRA(checked as boolean)}
-            />
-            <label htmlFor="receives-hra" className="text-sm cursor-pointer">I receive HRA</label>
-          </div>
-          
-          <div className="flex items-start space-x-2">
-            <Checkbox 
-              id="is-metro-city" 
-              checked={isMetroCity}
-              onCheckedChange={(checked) => setIsMetroCity(checked as boolean)}
-            />
-            <label htmlFor="is-metro-city" className="text-sm cursor-pointer">I live in a metro city (Delhi, Mumbai, Kolkata, Chennai)</label>
-          </div>
-          
-          <div className="flex items-start space-x-2">
-            <Checkbox 
-              id="has-home-loan" 
-              checked={hasHomeLoan}
-              onCheckedChange={(checked) => setHasHomeLoan(checked as boolean)}
-            />
-            <label htmlFor="has-home-loan" className="text-sm cursor-pointer">I have a home loan</label>
-          </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Basic Salary + DA
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="h-3.5 w-3.5 text-muted-foreground inline ml-1 cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="w-80">Enter your basic salary and dearness allowance (usually 40-60% of CTC)</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </label>
+          <Input
+            type="number"
+            value={basicSalary}
+            onChange={(e) => setBasicSalary(Number(e.target.value) || 0)}
+            placeholder="e.g., 500000"
+          />
         </div>
+        
+        <Collapsible className="w-full">
+          <CollapsibleTrigger className="flex items-center justify-between w-full py-2 text-sm font-medium text-left">
+            <span className="flex items-center">
+              <Home className="h-4 w-4 mr-2" />
+              House Rent Allowance (HRA) Details
+            </span>
+            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="space-y-4 pt-2 pl-4 border-l-2 border-l-muted">
+            <div className="flex flex-col space-y-2">
+              <div className="flex items-start space-x-2">
+                <Checkbox 
+                  id="receives-hra" 
+                  checked={receivesHRA}
+                  onCheckedChange={(checked) => setReceivesHRA(checked as boolean)}
+                />
+                <label htmlFor="receives-hra" className="text-sm cursor-pointer">I receive HRA from my employer</label>
+              </div>
+
+              {receivesHRA && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Annual HRA Received
+                    </label>
+                    <Input
+                      type="number"
+                      value={hraAmount}
+                      onChange={(e) => setHraAmount(Number(e.target.value) || 0)}
+                      placeholder="HRA amount received from employer"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Annual Rent Paid
+                    </label>
+                    <Input
+                      type="number"
+                      value={rentPaid}
+                      onChange={(e) => setRentPaid(Number(e.target.value) || 0)}
+                      placeholder="Total rent paid during the year"
+                    />
+                  </div>
+                  
+                  <div className="flex items-start space-x-2">
+                    <Checkbox 
+                      id="is-metro-city" 
+                      checked={isMetroCity}
+                      onCheckedChange={(checked) => setIsMetroCity(checked as boolean)}
+                    />
+                    <label htmlFor="is-metro-city" className="text-sm cursor-pointer">I live in a metro city (Delhi, Mumbai, Kolkata, Chennai)</label>
+                  </div>
+
+                  <div className="mt-2 p-3 bg-muted/30 rounded-lg">
+                    <p className="text-sm font-medium">Calculated HRA Exemption:</p>
+                    <p className="text-lg font-bold">{formatCurrency(hraExemption)}</p>
+                  </div>
+                </>
+              )}
+              
+              <div className="flex items-start space-x-2">
+                <Checkbox 
+                  id="has-home-loan" 
+                  checked={hasHomeLoan}
+                  onCheckedChange={(checked) => setHasHomeLoan(checked as boolean)}
+                />
+                <label htmlFor="has-home-loan" className="text-sm cursor-pointer">I have a home loan (for claiming interest deduction)</label>
+              </div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
         
         <div className="flex items-start space-x-2">
           <Checkbox 
@@ -206,6 +259,61 @@ const IncomeSection: React.FC = () => {
             )}
           </div>
         )}
+        
+        <Collapsible className="w-full">
+          <CollapsibleTrigger className="flex items-center justify-between w-full py-2 text-sm font-medium text-left">
+            <span className="flex items-center">
+              <Receipt className="h-4 w-4 mr-2" />
+              TDS & Advance Tax Details
+            </span>
+            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="space-y-4 pt-2 pl-4 border-l-2 border-l-muted">
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                TDS Deducted
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-3.5 w-3.5 text-muted-foreground inline ml-1 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="w-80">Total tax deducted at source from your salary and other income</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </label>
+              <Input
+                type="number"
+                value={tdsPaid}
+                onChange={(e) => setTdsPaid(Number(e.target.value) || 0)}
+                placeholder="Total TDS paid during the year"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                TCS Collected
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-3.5 w-3.5 text-muted-foreground inline ml-1 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="w-80">Tax collected at source on your purchases or transactions</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </label>
+              <Input
+                type="number"
+                value={tcsPaid}
+                onChange={(e) => setTcsPaid(Number(e.target.value) || 0)}
+                placeholder="Total TCS paid during the year"
+              />
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
         
         <div className="pt-2">
           <p className="text-sm font-medium">Total Gross Income</p>

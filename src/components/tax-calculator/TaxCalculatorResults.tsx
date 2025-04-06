@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, ArrowRight, AlertCircle } from 'lucide-react';
+import { CheckCircle2, ArrowRight, AlertCircle, Download, Share2 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { formatCurrency } from '@/utils/financialUtils';
 import { useTaxData } from './TaxDataContext';
@@ -13,27 +13,58 @@ import FinancialChart from '../FinancialChart';
 const TaxCalculatorResults: React.FC = () => {
   const {
     selectedRegime,
+    assessmentYear,
+    ageGroup,
+    residentialStatus,
+    
     oldRegimeTotal,
     newRegimeTotal,
+    oldRegimeFinalLiability,
+    newRegimeFinalLiability,
+    oldRegimeTaxableIncome,
+    newRegimeTaxableIncome,
+    oldRegimeRebate,
+    newRegimeRebate,
+    oldRegimeMarginalRelief,
+    newRegimeMarginalRelief,
+    
     taxSavings,
     betterRegime,
     oldRegimeBreakdown,
     newRegimeBreakdown,
     taxComparisonData,
-    totalIncome,
+    
+    tdsPaid,
+    tcsPaid,
+    
     exportAsPDF,
     shareCalculation,
     getTaxRecommendations
   } = useTaxData();
 
   const taxRecommendations = getTaxRecommendations();
+  
+  // Format age group for display
+  const displayAgeGroup = {
+    'below60': 'Below 60 years',
+    '60to80': '60 to 80 years',
+    'above80': 'Above 80 years'
+  }[ageGroup];
 
   return (
     <div className="grid gap-6 md:grid-cols-2 mt-8">
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Tax Calculation Results</CardTitle>
-          <CardDescription>Comparison between old and new tax regimes</CardDescription>
+          <CardTitle className="text-lg flex justify-between items-center">
+            <span>Tax Calculation Results</span>
+            <span className="text-sm font-normal text-muted-foreground">AY {assessmentYear}</span>
+          </CardTitle>
+          <CardDescription>
+            Comparison between old and new tax regimes 
+            <span className="block mt-1">
+              Age: {displayAgeGroup} | Status: {residentialStatus === 'resident' ? 'Resident' : 'Non-Resident'}
+            </span>
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-col sm:flex-row gap-4">
@@ -44,8 +75,11 @@ const TaxCalculatorResults: React.FC = () => {
               <p className="text-sm font-medium">Old Regime Tax</p>
               <h4 className="text-2xl font-bold">{formatCurrency(oldRegimeTotal)}</h4>
               <p className="text-xs text-muted-foreground">
-                Effective Rate: {totalIncome > 0 ? ((oldRegimeTotal / totalIncome) * 100).toFixed(2) : 0}%
+                Effective Rate: {oldRegimeTaxableIncome > 0 ? ((oldRegimeTotal / oldRegimeTaxableIncome) * 100).toFixed(2) : 0}%
               </p>
+              {tdsPaid + tcsPaid > 0 && (
+                <p className="text-xs mt-1 font-medium">Final Payable: {formatCurrency(oldRegimeFinalLiability)}</p>
+              )}
             </div>
             
             <div className={cn(
@@ -55,8 +89,11 @@ const TaxCalculatorResults: React.FC = () => {
               <p className="text-sm font-medium">New Regime Tax</p>
               <h4 className="text-2xl font-bold">{formatCurrency(newRegimeTotal)}</h4>
               <p className="text-xs text-muted-foreground">
-                Effective Rate: {totalIncome > 0 ? ((newRegimeTotal / totalIncome) * 100).toFixed(2) : 0}%
+                Effective Rate: {newRegimeTaxableIncome > 0 ? ((newRegimeTotal / newRegimeTaxableIncome) * 100).toFixed(2) : 0}%
               </p>
+              {tdsPaid + tcsPaid > 0 && (
+                <p className="text-xs mt-1 font-medium">Final Payable: {formatCurrency(newRegimeFinalLiability)}</p>
+              )}
             </div>
           </div>
           
@@ -75,6 +112,26 @@ const TaxCalculatorResults: React.FC = () => {
             </div>
           </div>
           
+          {(oldRegimeRebate > 0 || newRegimeRebate > 0 || oldRegimeMarginalRelief > 0 || newRegimeMarginalRelief > 0) && (
+            <div className="mt-4 p-4 bg-muted/30 rounded-lg">
+              <h4 className="font-medium mb-2">Tax Relief Applied</h4>
+              <div className="space-y-1 text-sm">
+                {oldRegimeRebate > 0 && (
+                  <p>• Old Regime: Rebate u/s 87A of {formatCurrency(oldRegimeRebate)}</p>
+                )}
+                {newRegimeRebate > 0 && (
+                  <p>• New Regime: Rebate u/s 87A of {formatCurrency(newRegimeRebate)}</p>
+                )}
+                {oldRegimeMarginalRelief > 0 && (
+                  <p>• Old Regime: Marginal relief of {formatCurrency(oldRegimeMarginalRelief)}</p>
+                )}
+                {newRegimeMarginalRelief > 0 && (
+                  <p>• New Regime: Marginal relief of {formatCurrency(newRegimeMarginalRelief)}</p>
+                )}
+              </div>
+            </div>
+          )}
+          
           <div className="mt-4">
             <FinancialChart
               title="Tax Regime Comparison"
@@ -90,7 +147,7 @@ const TaxCalculatorResults: React.FC = () => {
               onClick={exportAsPDF}
               className="flex items-center gap-1"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 17V3"/><path d="m6 11 6 6 6-6"/><path d="M19 21H5"/></svg>
+              <Download className="h-4 w-4" />
               Export PDF
             </Button>
             
@@ -100,7 +157,7 @@ const TaxCalculatorResults: React.FC = () => {
               onClick={shareCalculation}
               className="flex items-center gap-1"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+              <Share2 className="h-4 w-4" />
               Share Link
             </Button>
           </div>
@@ -122,7 +179,7 @@ const TaxCalculatorResults: React.FC = () => {
             <TabsContent value="breakdown" className="space-y-4 pt-4">
               <div>
                 <h3 className="font-medium text-sm mb-2">Old Regime Breakdown</h3>
-                <div className="space-y-2">
+                <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
                   {oldRegimeBreakdown.map((item, index) => (
                     <div key={index} className="flex justify-between">
                       <span className="text-sm">{item.name}</span>
@@ -136,7 +193,7 @@ const TaxCalculatorResults: React.FC = () => {
               
               <div>
                 <h3 className="font-medium text-sm mb-2">New Regime Breakdown</h3>
-                <div className="space-y-2">
+                <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
                   {newRegimeBreakdown.map((item, index) => (
                     <div key={index} className="flex justify-between">
                       <span className="text-sm">{item.name}</span>
@@ -164,9 +221,9 @@ const TaxCalculatorResults: React.FC = () => {
                     <h4 className="font-medium">Important Note</h4>
                   </div>
                   <p className="text-sm mt-2">
-                    This is a simplified tax calculator for income tax calculation. For complex tax situations
-                    involving multiple income sources, capital gains, or business income, please consult
-                    a tax professional.
+                    This is a simplified tax calculator for income tax calculation based on FY 2025-26 guidelines. 
+                    For complex tax situations involving multiple income sources, capital gains, or business income, 
+                    please consult a tax professional.
                   </p>
                 </div>
               </div>
