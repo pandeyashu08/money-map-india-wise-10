@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import FinancialChart from './FinancialChart';
 import { formatCurrency, categorizeTransaction, expenseCategories } from '@/utils/financialUtils';
 import { useToast } from "@/components/ui/use-toast";
-import { Calendar, Wallet, Plus } from "lucide-react";
+import { Calendar, Wallet, Plus, ArrowUpRight } from "lucide-react";
 
 interface Transaction {
   id: number;
@@ -143,7 +142,6 @@ const ExpenseTracker: React.FC = () => {
     });
   };
   
-  // Calculate expense by category for pie chart
   const expenseByCategory = transactions
     .filter(t => t.type === 'expense')
     .reduce<Record<string, number>>((acc, transaction) => {
@@ -157,7 +155,6 @@ const ExpenseTracker: React.FC = () => {
     return { name, value, color: categoryColor };
   });
   
-  // Monthly expense data
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const currentMonth = new Date().getMonth();
   const last6Months = Array.from({ length: 6 }, (_, i) => {
@@ -180,7 +177,12 @@ const ExpenseTracker: React.FC = () => {
       })
       .reduce((sum, t) => sum + t.amount, 0);
     
-    return { name, expenses: totalExpense, income: totalIncome };
+    return { 
+      name, 
+      expenses: totalExpense, 
+      income: totalIncome,
+      value: totalExpense
+    };
   });
   
   return (
