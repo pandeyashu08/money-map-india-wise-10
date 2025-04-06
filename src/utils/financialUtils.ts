@@ -54,46 +54,38 @@ export const calculateSavingsRate = (income: number, expenses: number): number =
 
 // Calculate tax under old regime (FY 2025-26)
 export const calculateOldRegimeTax = (income: number): number => {
-  let taxableIncome = Math.max(0, income - 50000); // Standard deduction
   let tax = 0;
   
-  if (taxableIncome <= 250000) {
+  if (income <= 250000) {
     tax = 0;
-  } else if (taxableIncome <= 500000) {
-    tax = (taxableIncome - 250000) * 0.05;
-  } else if (taxableIncome <= 1000000) {
-    tax = 12500 + (taxableIncome - 500000) * 0.2;
+  } else if (income <= 500000) {
+    tax = (income - 250000) * 0.05;
+  } else if (income <= 1000000) {
+    tax = 12500 + (income - 500000) * 0.2;
   } else {
-    tax = 112500 + (taxableIncome - 1000000) * 0.3;
+    tax = 112500 + (income - 1000000) * 0.3;
   }
-  
-  // Add 4% cess
-  tax = tax * 1.04;
   
   return Math.round(tax);
 };
 
 // Calculate tax under new regime (FY 2025-26)
 export const calculateNewRegimeTax = (income: number): number => {
-  let taxableIncome = Math.max(0, income - 50000); // Standard deduction
   let tax = 0;
   
-  if (taxableIncome <= 300000) {
+  if (income <= 300000) {
     tax = 0;
-  } else if (taxableIncome <= 600000) {
-    tax = (taxableIncome - 300000) * 0.05;
-  } else if (taxableIncome <= 900000) {
-    tax = 15000 + (taxableIncome - 600000) * 0.1;
-  } else if (taxableIncome <= 1200000) {
-    tax = 45000 + (taxableIncome - 900000) * 0.15;
-  } else if (taxableIncome <= 1500000) {
-    tax = 90000 + (taxableIncome - 1200000) * 0.2;
+  } else if (income <= 600000) {
+    tax = (income - 300000) * 0.05;
+  } else if (income <= 900000) {
+    tax = 15000 + (income - 600000) * 0.1;
+  } else if (income <= 1200000) {
+    tax = 45000 + (income - 900000) * 0.15;
+  } else if (income <= 1500000) {
+    tax = 90000 + (income - 1200000) * 0.2;
   } else {
-    tax = 150000 + (taxableIncome - 1500000) * 0.3;
+    tax = 150000 + (income - 1500000) * 0.3;
   }
-  
-  // Add 4% cess
-  tax = tax * 1.04;
   
   return Math.round(tax);
 };
