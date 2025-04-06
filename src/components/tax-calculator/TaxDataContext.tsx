@@ -1,5 +1,6 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { calculateOldRegimeTax, calculateNewRegimeTax } from '@/utils/financialUtils';
+import { calculateOldRegimeTax, calculateNewRegimeTax, formatCurrency } from '@/utils/financialUtils';
 
 type EmploymentType = 'private' | 'government';
 type AssessmentYear = '2024-25' | '2025-26' | '2026-27';
