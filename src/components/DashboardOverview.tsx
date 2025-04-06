@@ -5,6 +5,7 @@ import StatCard from './StatCard';
 import FinancialChart from './FinancialChart';
 import { formatCurrency, sampleTransactions, expenseCategories } from '@/utils/financialUtils';
 import { ArrowUpRight, Wallet, CreditCard, Landmark, PiggyBank } from 'lucide-react';
+import { cn } from "@/lib/utils";
 
 const DashboardOverview: React.FC = () => {
   // Calculate overview stats
@@ -22,11 +23,12 @@ const DashboardOverview: React.FC = () => {
     { name: 'Entertainment', value: 1500, color: '#F72585' }
   ];
   
+  // Format data in the required shape for the FinancialChart component
   const monthlyOverviewData = [
-    { name: 'Jan', income: 95000, expenses: 42000 },
-    { name: 'Feb', income: 98000, expenses: 45000 },
-    { name: 'Mar', income: 97000, expenses: 44000 },
-    { name: 'Apr', income: 100000, expenses: 46500 }
+    { name: 'Jan', value: 95000, income: 95000, expenses: 42000 },
+    { name: 'Feb', value: 98000, income: 98000, expenses: 45000 },
+    { name: 'Mar', value: 97000, income: 97000, expenses: 44000 },
+    { name: 'Apr', value: 100000, income: 100000, expenses: 46500 }
   ];
   
   const savingsData = [
