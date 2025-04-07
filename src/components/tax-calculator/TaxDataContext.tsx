@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { formatCurrency } from '@/utils/financialUtils';
 import { 
@@ -153,7 +152,6 @@ interface TaxDataContextType {
   getTaxRecommendations: () => string[];
 }
 
-// Default context values
 const defaultContext: TaxDataContextType = {
   calculatorMode: 'simple',
   setCalculatorMode: () => {},

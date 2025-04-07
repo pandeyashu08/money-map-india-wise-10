@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ChevronDown, Calculator, Home, UserPlus, Landmark, Indian, Umbrella, Award, Bookmark } from "lucide-react";
+import { ChevronDown, Calculator, Home, UserPlus, Landmark, IndianRupee, Umbrella, Award, Bookmark } from "lucide-react";
 import BookOpen from '@/components/icons/BookOpen';
 import { useTaxData } from '../TaxDataContext';
 import { formatCurrency } from '@/utils/financialUtils';
@@ -109,7 +109,7 @@ const DeductionsSection: React.FC<DeductionsSectionProps> = ({ onCalculate }) =>
               <div>
                 <Label htmlFor="epf-contribution">EPF Contribution</Label>
                 <div className="relative mt-1">
-                  <Indian className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <IndianRupee className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="epf-contribution"
                     type="number"
@@ -124,7 +124,7 @@ const DeductionsSection: React.FC<DeductionsSectionProps> = ({ onCalculate }) =>
               <div>
                 <Label htmlFor="ppf-investment">PPF Investment</Label>
                 <div className="relative mt-1">
-                  <Indian className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <IndianRupee className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="ppf-investment"
                     type="number"
@@ -139,7 +139,7 @@ const DeductionsSection: React.FC<DeductionsSectionProps> = ({ onCalculate }) =>
               <div>
                 <Label htmlFor="elss-investment">ELSS/Tax Saving Mutual Funds</Label>
                 <div className="relative mt-1">
-                  <Indian className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <IndianRupee className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="elss-investment"
                     type="number"
@@ -154,7 +154,7 @@ const DeductionsSection: React.FC<DeductionsSectionProps> = ({ onCalculate }) =>
               <div>
                 <Label htmlFor="life-insurance">Life Insurance Premium</Label>
                 <div className="relative mt-1">
-                  <Indian className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <IndianRupee className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="life-insurance"
                     type="number"
@@ -171,7 +171,7 @@ const DeductionsSection: React.FC<DeductionsSectionProps> = ({ onCalculate }) =>
                   <div>
                     <Label htmlFor="tuition-fees">Children Tuition Fees</Label>
                     <div className="relative mt-1">
-                      <Indian className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <IndianRupee className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="tuition-fees"
                         type="number"
@@ -186,7 +186,7 @@ const DeductionsSection: React.FC<DeductionsSectionProps> = ({ onCalculate }) =>
                   <div>
                     <Label htmlFor="other-80c">Other 80C Investments</Label>
                     <div className="relative mt-1">
-                      <Indian className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <IndianRupee className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="other-80c"
                         type="number"
@@ -411,7 +411,7 @@ const DeductionsSection: React.FC<DeductionsSectionProps> = ({ onCalculate }) =>
             <div>
               <Label htmlFor="tds-paid">TDS (Tax Deducted at Source)</Label>
               <div className="relative mt-1">
-                <Indian className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <IndianRupee className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="tds-paid"
                   type="number"
@@ -426,7 +426,7 @@ const DeductionsSection: React.FC<DeductionsSectionProps> = ({ onCalculate }) =>
             <div>
               <Label htmlFor="tcs-paid">TCS (Tax Collected at Source)</Label>
               <div className="relative mt-1">
-                <Indian className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <IndianRupee className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="tcs-paid"
                   type="number"

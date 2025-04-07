@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Indian } from "lucide-react";
+import { IndianRupee } from "lucide-react";
 import { useTaxData } from '../TaxDataContext';
 import { formatCurrency } from '@/utils/financialUtils';
 
@@ -48,7 +48,7 @@ const IncomeSection: React.FC = () => {
             Salary Income (per annum)
           </Label>
           <div className="relative mt-1">
-            <Indian className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <IndianRupee className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
               id="salary-income"
               type="number"
@@ -62,7 +62,7 @@ const IncomeSection: React.FC = () => {
             <div className="mt-3">
               <Label htmlFor="basic-salary">Basic Salary Component</Label>
               <div className="relative mt-1">
-                <Indian className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <IndianRupee className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="basic-salary"
                   type="number"
@@ -95,7 +95,7 @@ const IncomeSection: React.FC = () => {
                 Other Income (Interest, etc.)
               </Label>
               <div className="relative mt-1">
-                <Indian className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <IndianRupee className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="other-income-amount"
                   type="number"
@@ -112,7 +112,7 @@ const IncomeSection: React.FC = () => {
                 <div>
                   <Label htmlFor="rental-income">Income from House Property</Label>
                   <div className="relative mt-1">
-                    <Indian className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <IndianRupee className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="rental-income"
                       type="number"
@@ -127,7 +127,7 @@ const IncomeSection: React.FC = () => {
                 <div>
                   <Label htmlFor="business-income">Business/Professional Income</Label>
                   <div className="relative mt-1">
-                    <Indian className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <IndianRupee className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="business-income"
                       type="number"
@@ -142,7 +142,7 @@ const IncomeSection: React.FC = () => {
                 <div>
                   <Label htmlFor="capital-gains">Capital Gains</Label>
                   <div className="relative mt-1">
-                    <Indian className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <IndianRupee className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="capital-gains"
                       type="number"
@@ -172,7 +172,7 @@ const IncomeSection: React.FC = () => {
             <div>
               <Label htmlFor="hra-amount">Annual HRA Received</Label>
               <div className="relative mt-1">
-                <Indian className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <IndianRupee className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="hra-amount"
                   type="number"
@@ -187,7 +187,7 @@ const IncomeSection: React.FC = () => {
             <div>
               <Label htmlFor="rent-paid">Annual Rent Paid</Label>
               <div className="relative mt-1">
-                <Indian className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <IndianRupee className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="rent-paid"
                   type="number"

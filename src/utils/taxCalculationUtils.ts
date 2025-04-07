@@ -1,4 +1,3 @@
-
 import { formatCurrency } from './financialUtils';
 
 type AgeGroup = 'below60' | '60to80' | 'above80';
@@ -146,4 +145,31 @@ export const calculateMarginalRelief = (tax: number, income: number, isNewRegime
   }
   
   return 0;
+};
+
+/**
+ * Format Indian currency
+ * (moved from financialUtils to fix import error)
+ */
+export const formatIndianCurrency = (value: number): string => {
+  // Convert to string
+  const numStr = value.toString();
+  
+  // Handle numbers less than 1000
+  if (value < 1000) {
+    return numStr;
+  }
+  
+  // Extract last 3 digits
+  const lastThree = numStr.substring(numStr.length - 3);
+  
+  // Extract other digits
+  const otherNumbers = numStr.substring(0, numStr.length - 3);
+  
+  // Format with commas
+  if (otherNumbers !== '') {
+    return otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ',') + ',' + lastThree;
+  }
+  
+  return lastThree;
 };
