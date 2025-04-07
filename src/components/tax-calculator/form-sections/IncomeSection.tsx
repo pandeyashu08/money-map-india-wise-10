@@ -2,12 +2,11 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { BadgeIndianRupee, Info, Building, Briefcase, TrendingUp, ChevronDown, Home, Receipt } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { formatCurrency } from '@/utils/financialUtils';
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Indian } from "lucide-react";
 import { useTaxData } from '../TaxDataContext';
+import { formatCurrency } from '@/utils/financialUtils';
 
 const IncomeSection: React.FC = () => {
   const {
@@ -25,10 +24,6 @@ const IncomeSection: React.FC = () => {
     setBusinessIncome,
     capitalGains,
     setCapitalGains,
-    agricultureIncome,
-    setAgricultureIncome,
-    totalIncome,
-    
     receivesHRA,
     setReceivesHRA,
     hraAmount,
@@ -37,287 +32,186 @@ const IncomeSection: React.FC = () => {
     setRentPaid,
     isMetroCity,
     setIsMetroCity,
-    hasHomeLoan,
-    setHasHomeLoan,
-    hraExemption,
-    
-    tdsPaid,
-    setTdsPaid,
-    tcsPaid,
-    setTcsPaid,
-    
-    calculatorMode
+    calculatorMode,
+    totalIncome
   } = useTaxData();
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <BadgeIndianRupee className="h-5 w-5 text-finance-blue" />
-          Income Details
-        </CardTitle>
-        <CardDescription>Enter your income from all sources</CardDescription>
+        <CardTitle className="text-lg">Income Details</CardTitle>
+        <CardDescription>Enter your annual income details</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-1">
-            Salary Income
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Info className="h-3.5 w-3.5 text-muted-foreground inline ml-1 cursor-help" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="w-80">Enter your total annual salary income including basic, HRA, allowances before any deductions</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </label>
-          <Input
-            type="number"
-            value={salaryIncome}
-            onChange={(e) => setSalaryIncome(Number(e.target.value) || 0)}
-            placeholder="e.g., 1000000"
-          />
-        </div>
-        
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Basic Salary + DA
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Info className="h-3.5 w-3.5 text-muted-foreground inline ml-1 cursor-help" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="w-80">Enter your basic salary and dearness allowance (usually 40-60% of CTC)</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </label>
-          <Input
-            type="number"
-            value={basicSalary}
-            onChange={(e) => setBasicSalary(Number(e.target.value) || 0)}
-            placeholder="e.g., 500000"
-          />
-        </div>
-        
-        <Collapsible className="w-full">
-          <CollapsibleTrigger className="flex items-center justify-between w-full py-2 text-sm font-medium text-left">
-            <span className="flex items-center">
-              <Home className="h-4 w-4 mr-2" />
-              House Rent Allowance (HRA) Details
-            </span>
-            <ChevronDown className="h-4 w-4 text-muted-foreground" />
-          </CollapsibleTrigger>
-          <CollapsibleContent className="space-y-4 pt-2 pl-4 border-l-2 border-l-muted">
-            <div className="flex flex-col space-y-2">
-              <div className="flex items-start space-x-2">
-                <Checkbox 
-                  id="receives-hra" 
-                  checked={receivesHRA}
-                  onCheckedChange={(checked) => setReceivesHRA(checked as boolean)}
-                />
-                <label htmlFor="receives-hra" className="text-sm cursor-pointer">I receive HRA from my employer</label>
-              </div>
-
-              {receivesHRA && (
-                <>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Annual HRA Received
-                    </label>
-                    <Input
-                      type="number"
-                      value={hraAmount}
-                      onChange={(e) => setHraAmount(Number(e.target.value) || 0)}
-                      placeholder="HRA amount received from employer"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Annual Rent Paid
-                    </label>
-                    <Input
-                      type="number"
-                      value={rentPaid}
-                      onChange={(e) => setRentPaid(Number(e.target.value) || 0)}
-                      placeholder="Total rent paid during the year"
-                    />
-                  </div>
-                  
-                  <div className="flex items-start space-x-2">
-                    <Checkbox 
-                      id="is-metro-city" 
-                      checked={isMetroCity}
-                      onCheckedChange={(checked) => setIsMetroCity(checked as boolean)}
-                    />
-                    <label htmlFor="is-metro-city" className="text-sm cursor-pointer">I live in a metro city (Delhi, Mumbai, Kolkata, Chennai)</label>
-                  </div>
-
-                  <div className="mt-2 p-3 bg-muted/30 rounded-lg">
-                    <p className="text-sm font-medium">Calculated HRA Exemption:</p>
-                    <p className="text-lg font-bold">{formatCurrency(hraExemption)}</p>
-                  </div>
-                </>
-              )}
-              
-              <div className="flex items-start space-x-2">
-                <Checkbox 
-                  id="has-home-loan" 
-                  checked={hasHomeLoan}
-                  onCheckedChange={(checked) => setHasHomeLoan(checked as boolean)}
-                />
-                <label htmlFor="has-home-loan" className="text-sm cursor-pointer">I have a home loan (for claiming interest deduction)</label>
-              </div>
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
-        
-        <div className="flex items-start space-x-2">
-          <Checkbox 
-            id="has-other-income" 
-            checked={hasOtherIncome}
-            onCheckedChange={(checked) => setHasOtherIncome(checked as boolean)}
-          />
-          <div>
-            <label htmlFor="has-other-income" className="block text-sm font-medium cursor-pointer">
-              I have other income sources
-            </label>
+          <Label htmlFor="salary-income">
+            Salary Income (per annum)
+          </Label>
+          <div className="relative mt-1">
+            <Indian className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              id="salary-income"
+              type="number"
+              value={salaryIncome}
+              onChange={(e) => setSalaryIncome(parseFloat(e.target.value) || 0)}
+              className="pl-10"
+              placeholder="0"
+            />
           </div>
-        </div>
-        
-        {hasOtherIncome && (
-          <div className="space-y-4 pl-6 border-l-2 border-l-muted">
-            <div>
-              <label className="flex items-center text-sm font-medium mb-1">
-                <Building className="h-4 w-4 mr-1" /> 
-                Rental Income
-              </label>
-              <Input
-                type="number"
-                value={rentalIncome}
-                onChange={(e) => setRentalIncome(Number(e.target.value) || 0)}
-                placeholder="Income from house property"
-              />
-            </div>
-            
-            <div>
-              <label className="flex items-center text-sm font-medium mb-1">
-                <Briefcase className="h-4 w-4 mr-1" /> 
-                Business/Professional Income
-              </label>
-              <Input
-                type="number"
-                value={businessIncome}
-                onChange={(e) => setBusinessIncome(Number(e.target.value) || 0)}
-                placeholder="Business or profession income"
-              />
-            </div>
-            
-            <div>
-              <label className="flex items-center text-sm font-medium mb-1">
-                <TrendingUp className="h-4 w-4 mr-1" /> 
-                Capital Gains
-              </label>
-              <Input
-                type="number"
-                value={capitalGains}
-                onChange={(e) => setCapitalGains(Number(e.target.value) || 0)}
-                placeholder="Short or long term capital gains"
-              />
-            </div>
-            
-            <div>
-              <label className="flex items-center text-sm font-medium mb-1">
-                <BadgeIndianRupee className="h-4 w-4 mr-1" /> 
-                Other Income
-              </label>
-              <Input
-                type="number"
-                value={otherIncome}
-                onChange={(e) => setOtherIncome(Number(e.target.value) || 0)}
-                placeholder="Interest, dividends, etc."
-              />
-            </div>
-            
-            {calculatorMode === 'advanced' && (
-              <div>
-                <label className="flex items-center text-sm font-medium mb-1">
-                  <TrendingUp className="h-4 w-4 mr-1" /> 
-                  Agricultural Income
-                </label>
+          {calculatorMode === 'advanced' && (
+            <div className="mt-3">
+              <Label htmlFor="basic-salary">Basic Salary Component</Label>
+              <div className="relative mt-1">
+                <Indian className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
+                  id="basic-salary"
                   type="number"
-                  value={agricultureIncome}
-                  onChange={(e) => setAgricultureIncome(Number(e.target.value) || 0)}
-                  placeholder="Agricultural income (exempt but may affect tax rate)"
+                  value={basicSalary}
+                  onChange={(e) => setBasicSalary(parseFloat(e.target.value) || 0)}
+                  className="pl-10"
+                  placeholder="0"
                 />
               </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Basic salary is used for HRA exemption calculation
+              </p>
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="other-income"
+            checked={hasOtherIncome}
+            onCheckedChange={setHasOtherIncome}
+          />
+          <Label htmlFor="other-income">I have income from other sources</Label>
+        </div>
+
+        {hasOtherIncome && (
+          <div className="space-y-3 pl-6 border-l-2 border-muted">
+            <div>
+              <Label htmlFor="other-income-amount">
+                Other Income (Interest, etc.)
+              </Label>
+              <div className="relative mt-1">
+                <Indian className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="other-income-amount"
+                  type="number"
+                  value={otherIncome}
+                  onChange={(e) => setOtherIncome(parseFloat(e.target.value) || 0)}
+                  className="pl-10"
+                  placeholder="0"
+                />
+              </div>
+            </div>
+
+            {calculatorMode === 'advanced' && (
+              <>
+                <div>
+                  <Label htmlFor="rental-income">Income from House Property</Label>
+                  <div className="relative mt-1">
+                    <Indian className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="rental-income"
+                      type="number"
+                      value={rentalIncome}
+                      onChange={(e) => setRentalIncome(parseFloat(e.target.value) || 0)}
+                      className="pl-10"
+                      placeholder="0"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="business-income">Business/Professional Income</Label>
+                  <div className="relative mt-1">
+                    <Indian className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="business-income"
+                      type="number"
+                      value={businessIncome}
+                      onChange={(e) => setBusinessIncome(parseFloat(e.target.value) || 0)}
+                      className="pl-10"
+                      placeholder="0"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="capital-gains">Capital Gains</Label>
+                  <div className="relative mt-1">
+                    <Indian className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="capital-gains"
+                      type="number"
+                      value={capitalGains}
+                      onChange={(e) => setCapitalGains(parseFloat(e.target.value) || 0)}
+                      className="pl-10"
+                      placeholder="0"
+                    />
+                  </div>
+                </div>
+              </>
             )}
           </div>
         )}
-        
-        <Collapsible className="w-full">
-          <CollapsibleTrigger className="flex items-center justify-between w-full py-2 text-sm font-medium text-left">
-            <span className="flex items-center">
-              <Receipt className="h-4 w-4 mr-2" />
-              TDS & Advance Tax Details
-            </span>
-            <ChevronDown className="h-4 w-4 text-muted-foreground" />
-          </CollapsibleTrigger>
-          <CollapsibleContent className="space-y-4 pt-2 pl-4 border-l-2 border-l-muted">
+
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="receives-hra"
+            checked={receivesHRA}
+            onCheckedChange={setReceivesHRA}
+          />
+          <Label htmlFor="receives-hra">I receive HRA (House Rent Allowance)</Label>
+        </div>
+
+        {receivesHRA && (
+          <div className="space-y-3 pl-6 border-l-2 border-muted">
             <div>
-              <label className="block text-sm font-medium mb-1">
-                TDS Deducted
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Info className="h-3.5 w-3.5 text-muted-foreground inline ml-1 cursor-help" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="w-80">Total tax deducted at source from your salary and other income</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </label>
-              <Input
-                type="number"
-                value={tdsPaid}
-                onChange={(e) => setTdsPaid(Number(e.target.value) || 0)}
-                placeholder="Total TDS paid during the year"
-              />
+              <Label htmlFor="hra-amount">Annual HRA Received</Label>
+              <div className="relative mt-1">
+                <Indian className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="hra-amount"
+                  type="number"
+                  value={hraAmount}
+                  onChange={(e) => setHraAmount(parseFloat(e.target.value) || 0)}
+                  className="pl-10"
+                  placeholder="0"
+                />
+              </div>
             </div>
-            
+
             <div>
-              <label className="block text-sm font-medium mb-1">
-                TCS Collected
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Info className="h-3.5 w-3.5 text-muted-foreground inline ml-1 cursor-help" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="w-80">Tax collected at source on your purchases or transactions</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </label>
-              <Input
-                type="number"
-                value={tcsPaid}
-                onChange={(e) => setTcsPaid(Number(e.target.value) || 0)}
-                placeholder="Total TCS paid during the year"
-              />
+              <Label htmlFor="rent-paid">Annual Rent Paid</Label>
+              <div className="relative mt-1">
+                <Indian className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="rent-paid"
+                  type="number"
+                  value={rentPaid}
+                  onChange={(e) => setRentPaid(parseFloat(e.target.value) || 0)}
+                  className="pl-10"
+                  placeholder="0"
+                />
+              </div>
             </div>
-          </CollapsibleContent>
-        </Collapsible>
-        
-        <div className="pt-2">
-          <p className="text-sm font-medium">Total Gross Income</p>
-          <h3 className="text-2xl font-bold text-finance-blue">{formatCurrency(totalIncome)}</h3>
+
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="metro-city"
+                checked={isMetroCity}
+                onCheckedChange={setIsMetroCity}
+              />
+              <Label htmlFor="metro-city">I live in a metro city (Delhi, Mumbai, Chennai, Kolkata)</Label>
+            </div>
+          </div>
+        )}
+
+        <div className="mt-4 p-3 bg-finance-blue/5 rounded-lg">
+          <p className="text-sm font-medium">Total Gross Income: {formatCurrency(totalIncome)}</p>
         </div>
       </CardContent>
     </Card>

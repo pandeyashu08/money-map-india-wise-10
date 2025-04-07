@@ -1,67 +1,55 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
 import Navbar from '@/components/Navbar';
 import DashboardOverview from '@/components/DashboardOverview';
 import ExpenseTracker from '@/components/ExpenseTracker';
-import TaxCalculator from '@/components/TaxCalculator';
 import InvestmentCalculator from '@/components/InvestmentCalculator';
+import TaxCalculator from '@/components/TaxCalculator';
 
 const Index = () => {
+  const [activeTab, setActiveTab] = useState<string>('tax');
+  
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="flex flex-col min-h-screen">
       <Navbar />
       
-      <main className="flex-1 container mx-auto px-4 py-8">
-        <Tabs defaultValue="dashboard" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+      <main className="flex-1 container mx-auto px-4 py-6">
+        <Tabs 
+          defaultValue="tax" 
+          value={activeTab} 
+          onValueChange={setActiveTab}
+          className="w-full"
+        >
+          <TabsList className="grid grid-cols-4 mb-8">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
             <TabsTrigger value="expenses">Expenses</TabsTrigger>
-            <TabsTrigger value="tax">Tax Planner</TabsTrigger>
             <TabsTrigger value="investments">Investments</TabsTrigger>
+            <TabsTrigger value="tax">Tax Planner</TabsTrigger>
           </TabsList>
           
-          <div className="mt-6">
-            <TabsContent value="dashboard" className="mt-0">
-              <DashboardOverview />
-            </TabsContent>
-            
-            <TabsContent value="expenses" className="mt-0">
-              <ExpenseTracker />
-            </TabsContent>
-            
-            <TabsContent value="tax" className="mt-0">
-              <TaxCalculator />
-            </TabsContent>
-            
-            <TabsContent value="investments" className="mt-0">
-              <InvestmentCalculator />
-            </TabsContent>
-          </div>
+          <TabsContent value="dashboard">
+            <DashboardOverview />
+          </TabsContent>
+          
+          <TabsContent value="expenses">
+            <ExpenseTracker />
+          </TabsContent>
+          
+          <TabsContent value="investments">
+            <InvestmentCalculator />
+          </TabsContent>
+          
+          <TabsContent value="tax">
+            <TaxCalculator />
+          </TabsContent>
         </Tabs>
       </main>
       
-      <footer className="border-t border-border py-6">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center mb-4 md:mb-0">
-              <p className="text-sm text-muted-foreground">
-                © 2025 Money Map - Personal Finance Platform for Indians
-              </p>
-            </div>
-            <div className="flex space-x-6">
-              <a href="#" className="text-sm text-muted-foreground hover:text-foreground">
-                Privacy Policy
-              </a>
-              <a href="#" className="text-sm text-muted-foreground hover:text-foreground">
-                Terms of Service
-              </a>
-              <a href="#" className="text-sm text-muted-foreground hover:text-foreground">
-                Contact Us
-              </a>
-            </div>
-          </div>
+      <footer className="border-t border-border py-4">
+        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
+          <p>Tax Calculation for Assessment Year 2026-27. Data is based on Union Budget 2025-26.</p>
+          <p className="mt-1">This application is for educational purposes only. Please consult a tax professional for official advice.</p>
         </div>
       </footer>
     </div>

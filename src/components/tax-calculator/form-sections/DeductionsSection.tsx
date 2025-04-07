@@ -1,20 +1,17 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { 
-  Calculator, Info, ChevronDown, Home, 
-  Umbrella, BadgeIndianRupee, GraduationCap, HeartPulse, HandHeart, Landmark
-} from 'lucide-react';
-import { formatCurrency } from '@/utils/financialUtils';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ChevronDown, Calculator, Home, UserPlus, Landmark, Indian, Umbrella, Award, Bookmark } from "lucide-react";
+import BookOpen from '@/components/icons/BookOpen';
 import { useTaxData } from '../TaxDataContext';
-import Section80C from './Section80C';
+import { formatCurrency } from '@/utils/financialUtils';
 
 interface DeductionsSectionProps {
   onCalculate: () => void;
@@ -22,16 +19,28 @@ interface DeductionsSectionProps {
 
 const DeductionsSection: React.FC<DeductionsSectionProps> = ({ onCalculate }) => {
   const {
-    calculatorMode,
     selectedRegime,
-    
+    hasHomeLoan,
+    setHasHomeLoan,
     standardDeduction,
     setStandardDeduction,
-    
     hasOtherDeductions,
     setHasOtherDeductions,
     
+    epfContribution,
+    setEpfContribution,
+    ppfInvestment,
+    setPpfInvestment,
+    elssInvestment,
+    setElssInvestment,
+    lifeInsurance,
+    setLifeInsurance,
+    tuitionFees,
+    setTuitionFees,
+    otherEightyC,
+    setOtherEightyC,
     section80C,
+    
     section80D,
     setSection80D,
     section80G,
@@ -49,341 +58,398 @@ const DeductionsSection: React.FC<DeductionsSectionProps> = ({ onCalculate }) =>
     setEmploymentType,
     employerNpsContribution,
     setEmployerNpsContribution,
-    basicSalary,
     
-    lta,
-    setLta,
-    professionalTax,
-    setProfessionalTax,
-    otherExemptions,
-    setOtherExemptions
+    tdsPaid,
+    setTdsPaid,
+    tcsPaid,
+    setTcsPaid,
+    
+    calculatorMode
   } = useTaxData();
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Calculator className="h-5 w-5 text-finance-blue" />
-          {calculatorMode === 'advanced' ? 'Exemptions & Deductions' : 'Deductions'}
-        </CardTitle>
-        <CardDescription>Enter your eligible deductions under tax regimes</CardDescription>
+        <CardTitle className="text-lg">Deductions & Tax Payments</CardTitle>
+        <CardDescription>Add your eligible deductions under various sections</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-start space-x-2">
-          <Checkbox 
-            id="standard-deduction" 
+      <CardContent className="space-y-5">
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="standard-deduction"
             checked={standardDeduction}
-            onCheckedChange={(checked) => setStandardDeduction(checked as boolean)}
+            onCheckedChange={setStandardDeduction}
           />
-          <div>
-            <label htmlFor="standard-deduction" className="block text-sm font-medium cursor-pointer">
-              Standard Deduction
-              <span className="block text-xs text-muted-foreground">
-                (₹50,000 for Old Regime, ₹75,000 for New Regime)
-              </span>
-            </label>
-          </div>
+          <Label htmlFor="standard-deduction">
+            Standard Deduction 
+            ({selectedRegime === 'old' ? '₹50,000' : '₹75,000'})
+          </Label>
         </div>
-        
+
         {selectedRegime === 'old' && (
-          <>
-            <Collapsible className="w-full">
-              <CollapsibleTrigger className="flex items-center justify-between w-full py-2 text-sm font-medium text-left">
-                <span className="flex items-center">
-                  <Home className="h-4 w-4 mr-2" />
-                  Additional Exemptions (Old Regime)
-                </span>
-                <ChevronDown className="h-4 w-4 text-muted-foreground" />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-4 pt-2 pl-4 border-l-2 border-l-muted">
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    LTA Exemption
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Info className="h-3.5 w-3.5 text-muted-foreground inline ml-1 cursor-help" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="w-80">Leave Travel Allowance exemption for journeys undertaken within India</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </label>
-                  <Input
-                    type="number"
-                    value={lta}
-                    onChange={(e) => setLta(Number(e.target.value) || 0)}
-                    placeholder="Enter eligible LTA amount"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Professional Tax
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Info className="h-3.5 w-3.5 text-muted-foreground inline ml-1 cursor-help" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="w-80">Tax levied by state governments on professionals (typically ₹2,400 per year)</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </label>
-                  <Input
-                    type="number"
-                    value={professionalTax}
-                    onChange={(e) => setProfessionalTax(Number(e.target.value) || 0)}
-                    placeholder="Enter professional tax paid"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Other Exemptions
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Info className="h-3.5 w-3.5 text-muted-foreground inline ml-1 cursor-help" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="w-80">Any other exemptions like special allowances under Section 10</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </label>
-                  <Input
-                    type="number"
-                    value={otherExemptions}
-                    onChange={(e) => setOtherExemptions(Number(e.target.value) || 0)}
-                    placeholder="Enter other exemptions"
-                  />
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="has-other-deductions"
+              checked={hasOtherDeductions}
+              onCheckedChange={setHasOtherDeductions}
+            />
+            <Label htmlFor="has-other-deductions">I have Chapter VI-A deductions (80C, 80D, etc.)</Label>
+          </div>
+        )}
+
+        {selectedRegime === 'old' && hasOtherDeductions && (
+          <Tabs defaultValue="80c" className="w-full">
+            <TabsList className="grid grid-cols-3 mb-4">
+              <TabsTrigger value="80c">Section 80C</TabsTrigger>
+              <TabsTrigger value="other">Other Deductions</TabsTrigger>
+              <TabsTrigger value="loan">Loan & Employment</TabsTrigger>
+            </TabsList>
             
-            <Collapsible className="w-full">
-              <CollapsibleTrigger className="flex items-center justify-between w-full py-2 text-sm font-medium text-left">
-                <span className="flex items-center">
-                  <Umbrella className="h-4 w-4 mr-2" />
-                  Employer NPS Contribution
-                </span>
-                <ChevronDown className="h-4 w-4 text-muted-foreground" />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-4 pt-2 pl-4 border-l-2 border-l-muted">
-                <div>
-                  <div className="flex items-center space-x-2 mb-2">
-                    <label className="text-sm text-muted-foreground">Employment Type:</label>
-                    <RadioGroup value={employmentType} onValueChange={(value) => setEmploymentType(value as 'private' | 'government')}>
-                      <div className="flex space-x-2">
-                        <div className="flex items-center space-x-1">
-                          <RadioGroupItem value="private" id="private" />
-                          <Label htmlFor="private" className="text-sm">Private</Label>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <RadioGroupItem value="government" id="government" />
-                          <Label htmlFor="government" className="text-sm">Government</Label>
-                        </div>
-                      </div>
-                    </RadioGroup>
-                  </div>
-                  <label className="block text-sm font-medium mb-1">
-                    Employer NPS Contribution
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Info className="h-3.5 w-3.5 text-muted-foreground inline ml-1 cursor-help" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="w-80">Employer's contribution to NPS is tax-free up to 10% (govt) or 14% (private) of Basic+DA under Section 80CCD(2)</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </label>
-                  <Input
-                    type="number"
-                    value={employerNpsContribution}
-                    onChange={(e) => setEmployerNpsContribution(Number(e.target.value) || 0)}
-                    placeholder="Enter employer's NPS contribution"
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Maximum eligible amount: {formatCurrency(employmentType === 'private' ? basicSalary * 0.14 : basicSalary * 0.10)}
-                  </p>
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
-            
-            <div className="flex items-start space-x-2">
-              <Checkbox 
-                id="has-other-deductions" 
-                checked={hasOtherDeductions}
-                onCheckedChange={(checked) => setHasOtherDeductions(checked as boolean)}
-              />
+            <TabsContent value="80c" className="space-y-4">
               <div>
-                <label htmlFor="has-other-deductions" className="block text-sm font-medium cursor-pointer">
-                  I have deductions under Chapter VI-A
-                </label>
-              </div>
-            </div>
-            
-            {hasOtherDeductions && (
-              <div className="space-y-4 pl-6 border-l-2 border-l-muted">
-                <Section80C />
-                
-                <div>
-                  <label className="flex items-center text-sm font-medium mb-1">
-                    <HeartPulse className="h-4 w-4 mr-1" />
-                    Health Insurance (80D)
-                    <span className="text-xs text-muted-foreground ml-2">Medical Insurance Premium</span>
-                  </label>
+                <Label htmlFor="epf-contribution">EPF Contribution</Label>
+                <div className="relative mt-1">
+                  <Indian className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
+                    id="epf-contribution"
+                    type="number"
+                    value={epfContribution}
+                    onChange={(e) => setEpfContribution(parseFloat(e.target.value) || 0)}
+                    className="pl-10"
+                    placeholder="0"
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <Label htmlFor="ppf-investment">PPF Investment</Label>
+                <div className="relative mt-1">
+                  <Indian className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="ppf-investment"
+                    type="number"
+                    value={ppfInvestment}
+                    onChange={(e) => setPpfInvestment(parseFloat(e.target.value) || 0)}
+                    className="pl-10"
+                    placeholder="0"
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <Label htmlFor="elss-investment">ELSS/Tax Saving Mutual Funds</Label>
+                <div className="relative mt-1">
+                  <Indian className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="elss-investment"
+                    type="number"
+                    value={elssInvestment}
+                    onChange={(e) => setElssInvestment(parseFloat(e.target.value) || 0)}
+                    className="pl-10"
+                    placeholder="0"
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <Label htmlFor="life-insurance">Life Insurance Premium</Label>
+                <div className="relative mt-1">
+                  <Indian className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="life-insurance"
+                    type="number"
+                    value={lifeInsurance}
+                    onChange={(e) => setLifeInsurance(parseFloat(e.target.value) || 0)}
+                    className="pl-10"
+                    placeholder="0"
+                  />
+                </div>
+              </div>
+              
+              {calculatorMode === 'advanced' && (
+                <>
+                  <div>
+                    <Label htmlFor="tuition-fees">Children Tuition Fees</Label>
+                    <div className="relative mt-1">
+                      <Indian className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="tuition-fees"
+                        type="number"
+                        value={tuitionFees}
+                        onChange={(e) => setTuitionFees(parseFloat(e.target.value) || 0)}
+                        className="pl-10"
+                        placeholder="0"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="other-80c">Other 80C Investments</Label>
+                    <div className="relative mt-1">
+                      <Indian className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="other-80c"
+                        type="number"
+                        value={otherEightyC}
+                        onChange={(e) => setOtherEightyC(parseFloat(e.target.value) || 0)}
+                        className="pl-10"
+                        placeholder="0"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+              
+              <div className="p-3 bg-muted/30 rounded-lg">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="text-sm font-medium">Total 80C</p>
+                    <p className="text-xs text-muted-foreground">Maximum deduction ₹1,50,000</p>
+                  </div>
+                  <div>
+                    <span className={`text-sm font-bold ${section80C > 150000 ? 'text-finance-warning' : ''}`}>
+                      {formatCurrency(section80C)}
+                    </span>
+                    {section80C > 150000 && (
+                      <p className="text-xs text-finance-warning">Limited to ₹1,50,000</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="other" className="space-y-4">
+              <div>
+                <Label htmlFor="section-80d">
+                  Section 80D - Health Insurance Premium
+                </Label>
+                <div className="relative mt-1">
+                  <Umbrella className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="section-80d"
                     type="number"
                     value={section80D}
-                    onChange={(e) => setSection80D(Number(e.target.value) || 0)}
-                    placeholder="Enter health insurance premium"
+                    onChange={(e) => setSection80D(parseFloat(e.target.value) || 0)}
+                    className="pl-10"
+                    placeholder="0"
                   />
                 </div>
-                
-                <div>
-                  <label className="flex items-center text-sm font-medium mb-1">
-                    <HandHeart className="h-4 w-4 mr-1" />
-                    Donations (80G)
-                    <span className="text-xs text-muted-foreground ml-2">Donations to approved funds/charities</span>
-                  </label>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Max deduction: ₹25,000 (₹50,000 for senior citizens)
+                </p>
+              </div>
+
+              <div>
+                <Label htmlFor="nps-contribution">
+                  Section 80CCD(1B) - NPS Contribution
+                </Label>
+                <div className="relative mt-1">
+                  <Bookmark className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
-                    type="number"
-                    value={section80G}
-                    onChange={(e) => setSection80G(Number(e.target.value) || 0)}
-                    placeholder="Enter donation amount"
-                  />
-                </div>
-                
-                <div>
-                  <label className="flex items-center text-sm font-medium mb-1">
-                    <Landmark className="h-4 w-4 mr-1" />
-                    Interest on Savings (80TTA)
-                    <span className="text-xs text-muted-foreground ml-2">Max ₹10,000</span>
-                  </label>
-                  <Input
-                    type="number"
-                    value={section80TTA}
-                    onChange={(e) => setSection80TTA(Number(e.target.value) || 0)}
-                    placeholder="Enter savings account interest"
-                  />
-                </div>
-                
-                <div>
-                  <label className="flex items-center text-sm font-medium mb-1">
-                    <Umbrella className="h-4 w-4 mr-1" />
-                    NPS Contribution (80CCD(1B))
-                    <span className="text-xs text-muted-foreground ml-2">Additional ₹50,000</span>
-                  </label>
-                  <Input
+                    id="nps-contribution"
                     type="number"
                     value={nps}
-                    onChange={(e) => setNps(Number(e.target.value) || 0)}
-                    placeholder="Enter NPS contribution"
+                    onChange={(e) => setNps(parseFloat(e.target.value) || 0)}
+                    className="pl-10"
+                    placeholder="0"
                   />
                 </div>
-                <div>
-                  <label className="flex items-center text-sm font-medium mb-1">
-                    <Home className="h-4 w-4 mr-1" />
-                    Housing Loan Interest (Max ₹2,00,000)
-                  </label>
-                  <Input
-                    type="number"
-                    value={housingLoanInterest}
-                    onChange={(e) => setHousingLoanInterest(Number(e.target.value) || 0)}
-                    placeholder="Enter housing loan interest"
-                  />
-                </div>
-                <div>
-                  <label className="flex items-center text-sm font-medium mb-1">
-                    <GraduationCap className="h-4 w-4 mr-1" />
-                    Education Loan Interest (80E)
-                  </label>
-                  <Input
-                    type="number"
-                    value={educationLoanInterest}
-                    onChange={(e) => setEducationLoanInterest(Number(e.target.value) || 0)}
-                    placeholder="Enter education loan interest"
-                  />
-                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Additional deduction up to ₹50,000
+                </p>
               </div>
-            )}
-          </>
+
+              {calculatorMode === 'advanced' && (
+                <>
+                  <div>
+                    <Label htmlFor="section-80g">
+                      Section 80G - Donations
+                    </Label>
+                    <div className="relative mt-1">
+                      <Award className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="section-80g"
+                        type="number"
+                        value={section80G}
+                        onChange={(e) => setSection80G(parseFloat(e.target.value) || 0)}
+                        className="pl-10"
+                        placeholder="0"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="section-80tta">
+                      Section 80TTA - Savings Interest
+                    </Label>
+                    <div className="relative mt-1">
+                      <Landmark className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="section-80tta"
+                        type="number"
+                        value={section80TTA}
+                        onChange={(e) => setSection80TTA(parseFloat(e.target.value) || 0)}
+                        className="pl-10"
+                        placeholder="0"
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Interest from savings account, max ₹10,000
+                    </p>
+                  </div>
+                </>
+              )}
+            </TabsContent>
+            
+            <TabsContent value="loan" className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="has-home-loan"
+                  checked={hasHomeLoan}
+                  onCheckedChange={setHasHomeLoan}
+                />
+                <Label htmlFor="has-home-loan">I have a home loan</Label>
+              </div>
+              
+              {hasHomeLoan && (
+                <div className="ml-6 space-y-3 border-l-2 border-muted pl-4">
+                  <div>
+                    <Label htmlFor="housing-loan-interest">
+                      Section 24 - Housing Loan Interest
+                    </Label>
+                    <div className="relative mt-1">
+                      <Home className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="housing-loan-interest"
+                        type="number"
+                        value={housingLoanInterest}
+                        onChange={(e) => setHousingLoanInterest(parseFloat(e.target.value) || 0)}
+                        className="pl-10"
+                        placeholder="0"
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Max deduction: ₹2,00,000 for self-occupied property
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {calculatorMode === 'advanced' && (
+                <>
+                  <div>
+                    <Label htmlFor="education-loan-interest">
+                      Section 80E - Education Loan Interest
+                    </Label>
+                    <div className="relative mt-1">
+                      <BookOpen className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="education-loan-interest"
+                        type="number"
+                        value={educationLoanInterest}
+                        onChange={(e) => setEducationLoanInterest(parseFloat(e.target.value) || 0)}
+                        className="pl-10"
+                        placeholder="0"
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      No upper limit, deduction available for 8 years
+                    </p>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="employment-type">Employment Type</Label>
+                    <Select 
+                      value={employmentType} 
+                      onValueChange={(value) => setEmploymentType(value as 'private' | 'government')}
+                    >
+                      <SelectTrigger id="employment-type" className="mt-1">
+                        <SelectValue placeholder="Select employment type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="private">Private Sector</SelectItem>
+                        <SelectItem value="government">Government Sector</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="employer-nps">
+                      Employer's NPS Contribution
+                    </Label>
+                    <div className="relative mt-1">
+                      <UserPlus className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="employer-nps"
+                        type="number"
+                        value={employerNpsContribution}
+                        onChange={(e) => setEmployerNpsContribution(parseFloat(e.target.value) || 0)}
+                        className="pl-10"
+                        placeholder="0"
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {employmentType === 'private' 
+                        ? 'Deductible up to 14% of Basic Salary (private sector)' 
+                        : 'Deductible up to 10% of Basic Salary (government)'}
+                    </p>
+                  </div>
+                </>
+              )}
+            </TabsContent>
+          </Tabs>
         )}
-        
-        {selectedRegime === 'new' && (
-          <>
-            <div className="py-2 px-4 bg-muted/30 rounded-lg">
-              <p className="text-sm text-muted-foreground">In the New Tax Regime, most deductions under Chapter VI-A are not allowed except for employer's NPS contribution and transport allowance for disabled persons.</p>
+
+        <Collapsible className="w-full">
+          <CollapsibleTrigger asChild>
+            <Button variant="outline" type="button" className="flex w-full justify-between">
+              <span>TDS/TCS Paid</span>
+              <ChevronDown className="h-4 w-4" />
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="space-y-4 mt-4">
+            <div>
+              <Label htmlFor="tds-paid">TDS (Tax Deducted at Source)</Label>
+              <div className="relative mt-1">
+                <Indian className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="tds-paid"
+                  type="number"
+                  value={tdsPaid}
+                  onChange={(e) => setTdsPaid(parseFloat(e.target.value) || 0)}
+                  className="pl-10"
+                  placeholder="0"
+                />
+              </div>
             </div>
             
-            <Collapsible className="w-full">
-              <CollapsibleTrigger className="flex items-center justify-between w-full py-2 text-sm font-medium text-left">
-                <span className="flex items-center">
-                  <Umbrella className="h-4 w-4 mr-2" />
-                  Employer NPS Contribution
-                </span>
-                <ChevronDown className="h-4 w-4 text-muted-foreground" />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-4 pt-2 pl-4 border-l-2 border-l-muted">
-                <div>
-                  <div className="flex items-center space-x-2 mb-2">
-                    <label className="text-sm text-muted-foreground">Employment Type:</label>
-                    <RadioGroup value={employmentType} onValueChange={(value) => setEmploymentType(value as 'private' | 'government')}>
-                      <div className="flex space-x-2">
-                        <div className="flex items-center space-x-1">
-                          <RadioGroupItem value="private" id="private-new" />
-                          <Label htmlFor="private-new" className="text-sm">Private</Label>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <RadioGroupItem value="government" id="government-new" />
-                          <Label htmlFor="government-new" className="text-sm">Government</Label>
-                        </div>
-                      </div>
-                    </RadioGroup>
-                  </div>
-                  <label className="block text-sm font-medium mb-1">
-                    Employer NPS Contribution
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Info className="h-3.5 w-3.5 text-muted-foreground inline ml-1 cursor-help" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="w-80">Employer's contribution to NPS is tax-free up to 10% (govt) or 14% (private) of Basic+DA even in the new regime</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </label>
-                  <Input
-                    type="number"
-                    value={employerNpsContribution}
-                    onChange={(e) => setEmployerNpsContribution(Number(e.target.value) || 0)}
-                    placeholder="Enter employer's NPS contribution"
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Maximum eligible amount: {formatCurrency(employmentType === 'private' ? basicSalary * 0.14 : basicSalary * 0.10)}
-                  </p>
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
-          </>
-        )}
-        
-        <div className="pt-4">
-          <Button 
-            onClick={onCalculate}
-            className="w-full bg-finance-blue hover:bg-blue-700 flex items-center justify-center gap-2"
-            size="lg"
-          >
-            <Calculator className="h-4 w-4" />
-            Calculate Tax
-          </Button>
-        </div>
+            <div>
+              <Label htmlFor="tcs-paid">TCS (Tax Collected at Source)</Label>
+              <div className="relative mt-1">
+                <Indian className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="tcs-paid"
+                  type="number"
+                  value={tcsPaid}
+                  onChange={(e) => setTcsPaid(parseFloat(e.target.value) || 0)}
+                  className="pl-10"
+                  placeholder="0"
+                />
+              </div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
       </CardContent>
+      <CardFooter>
+        <Button 
+          className="w-full" 
+          size="lg" 
+          onClick={onCalculate}
+        >
+          <Calculator className="h-5 w-5 mr-2" />
+          Calculate Tax
+        </Button>
+      </CardFooter>
     </Card>
   );
 };

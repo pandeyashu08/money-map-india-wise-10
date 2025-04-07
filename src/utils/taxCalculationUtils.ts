@@ -1,116 +1,114 @@
 
-/**
- * Tax calculation utilities specific to Indian income tax rules
- */
+import { formatCurrency } from './financialUtils';
 
 type AgeGroup = 'below60' | '60to80' | 'above80';
-type ResidentialStatus = 'resident' | 'non-resident';
 
 /**
- * Calculate tax under old regime based on age group
+ * Calculate tax under old regime
  */
-export const calculateOldRegimeTax = (
-  taxableIncome: number, 
-  ageGroup: AgeGroup = 'below60'
-): number => {
+export const calculateOldRegimeTax = (taxableIncome: number, ageGroup: AgeGroup): number => {
   let tax = 0;
-
-  // Tax slabs for different age groups
-  if (ageGroup === 'below60') {
-    // Below 60 years
-    if (taxableIncome <= 250000) {
-      tax = 0;
-    } else if (taxableIncome <= 500000) {
-      tax = (taxableIncome - 250000) * 0.05;
-    } else if (taxableIncome <= 1000000) {
-      tax = 12500 + (taxableIncome - 500000) * 0.2;
-    } else {
-      tax = 112500 + (taxableIncome - 1000000) * 0.3;
+  
+  // Set exemption limit based on age
+  let exemptionLimit = 250000; // Below 60
+  if (ageGroup === '60to80') {
+    exemptionLimit = 300000;
+  } else if (ageGroup === 'above80') {
+    exemptionLimit = 500000;
+  }
+  
+  // If income is below exemption limit, no tax
+  if (taxableIncome <= exemptionLimit) {
+    return 0;
+  }
+  
+  // Calculate tax based on slabs
+  if (ageGroup === 'below60' || ageGroup === '60to80') {
+    if (taxableIncome > 1000000) {
+      tax = (taxableIncome - 1000000) * 0.3 + 112500;
+    } else if (taxableIncome > 500000) {
+      tax = (taxableIncome - 500000) * 0.2 + 12500;
+    } else if (taxableIncome > exemptionLimit) {
+      tax = (taxableIncome - exemptionLimit) * 0.05;
     }
-  } else if (ageGroup === '60to80') {
-    // 60-80 years
-    if (taxableIncome <= 300000) {
-      tax = 0;
-    } else if (taxableIncome <= 500000) {
-      tax = (taxableIncome - 300000) * 0.05;
-    } else if (taxableIncome <= 1000000) {
-      tax = 10000 + (taxableIncome - 500000) * 0.2;
-    } else {
-      tax = 110000 + (taxableIncome - 1000000) * 0.3;
-    }
-  } else {
-    // Above 80 years
-    if (taxableIncome <= 500000) {
-      tax = 0;
-    } else if (taxableIncome <= 1000000) {
+  } else if (ageGroup === 'above80') {
+    if (taxableIncome > 1000000) {
+      tax = (taxableIncome - 1000000) * 0.3 + 100000;
+    } else if (taxableIncome > 500000) {
       tax = (taxableIncome - 500000) * 0.2;
-    } else {
-      tax = 100000 + (taxableIncome - 1000000) * 0.3;
     }
   }
-
-  return tax;
+  
+  return Math.round(tax);
 };
 
 /**
- * Calculate tax under new regime (FY 2025-26)
+ * Calculate tax under new regime
  */
 export const calculateNewRegimeTax = (taxableIncome: number): number => {
   let tax = 0;
-
-  if (taxableIncome <= 400000) {
-    tax = 0;
-  } else if (taxableIncome <= 700000) {
+  
+  // New regime slabs (AY 2026-27)
+  if (taxableIncome > 2400000) {
+    tax = (taxableIncome - 2400000) * 0.3 + 400000;
+  } else if (taxableIncome > 2000000) {
+    tax = (taxableIncome - 2000000) * 0.25 + 280000;
+  } else if (taxableIncome > 1600000) {
+    tax = (taxableIncome - 1600000) * 0.2 + 180000;
+  } else if (taxableIncome > 1200000) {
+    tax = (taxableIncome - 1200000) * 0.15 + 100000;
+  } else if (taxableIncome > 800000) {
+    tax = (taxableIncome - 800000) * 0.1 + 40000;
+  } else if (taxableIncome > 400000) {
     tax = (taxableIncome - 400000) * 0.05;
-  } else if (taxableIncome <= 1000000) {
-    tax = 15000 + (taxableIncome - 700000) * 0.1;
-  } else if (taxableIncome <= 1200000) {
-    tax = 45000 + (taxableIncome - 1000000) * 0.15;
-  } else if (taxableIncome <= 1600000) {
-    tax = 75000 + (taxableIncome - 1200000) * 0.2;
-  } else {
-    tax = 155000 + (taxableIncome - 1600000) * 0.3;
   }
-
-  return tax;
+  
+  return Math.round(tax);
 };
 
 /**
  * Calculate surcharge based on income level
  */
-export const calculateSurcharge = (taxAmount: number, totalIncome: number): number => {
-  if (totalIncome > 50000000) {
-    return taxAmount * 0.37; // 37% surcharge for income > 5 crores
-  } else if (totalIncome > 20000000) {
-    return taxAmount * 0.25; // 25% surcharge for income > 2 crores
-  } else if (totalIncome > 10000000) {
-    return taxAmount * 0.15; // 15% surcharge for income > 1 crore
-  } else if (totalIncome > 5000000) {
-    return taxAmount * 0.10; // 10% surcharge for income > 50 lakhs
+export const calculateSurcharge = (tax: number, income: number): number => {
+  let surcharge = 0;
+  
+  if (income > 50000000) {
+    // Income > 5 crore: 37% surcharge
+    surcharge = tax * 0.37;
+  } else if (income > 20000000) {
+    // Income > 2 crore: 25% surcharge
+    surcharge = tax * 0.25;
+  } else if (income > 10000000) {
+    // Income > 1 crore: 15% surcharge
+    surcharge = tax * 0.15;
+  } else if (income > 5000000) {
+    // Income > 50 lakh: 10% surcharge
+    surcharge = tax * 0.1;
   }
-  return 0;
+  
+  return Math.round(surcharge);
 };
 
 /**
- * Calculate rebate under Section 87A
+ * Calculate rebate under section 87A
  */
-export const calculateRebate = (taxAmount: number, taxableIncome: number, isNewRegime: boolean): number => {
-  if (isNewRegime) {
-    // For new regime: full rebate up to 12L
-    if (taxableIncome <= 1200000) {
-      return Math.min(taxAmount, 25000);
-    }
-  } else {
-    // For old regime: rebate up to 5L
-    if (taxableIncome <= 500000) {
-      return Math.min(taxAmount, 12500);
-    }
+export const calculateRebate = (tax: number, income: number, isNewRegime: boolean): number => {
+  // No rebate if tax is 0
+  if (tax === 0) return 0;
+  
+  // Different income limits for old and new regime
+  const incomeLimit = isNewRegime ? 1200000 : 500000;
+  const maxRebate = isNewRegime ? 60000 : 12500;
+  
+  if (income <= incomeLimit) {
+    return Math.min(tax, maxRebate);
   }
+  
   return 0;
 };
 
 /**
- * Calculate eligible HRA exemption
+ * Calculate HRA exemption
  */
 export const calculateHRAExemption = (
   basicSalary: number,
@@ -118,56 +116,34 @@ export const calculateHRAExemption = (
   rentPaid: number,
   isMetroCity: boolean
 ): number => {
-  if (rentPaid === 0) return 0;
+  // No exemption if rent paid is less than 10% of basic salary
+  if (rentPaid <= basicSalary * 0.1) {
+    return 0;
+  }
   
-  // HRA exemption is least of these three
-  const actualHRA = hraReceived;
-  const rentMinusBasic = Math.max(0, rentPaid - (0.1 * basicSalary));
-  const percentOfBasic = isMetroCity ? 0.5 * basicSalary : 0.4 * basicSalary;
+  // Calculate exemption based on three conditions, minimum is the exemption
+  const exemption1 = hraReceived;
+  const exemption2 = rentPaid - (0.1 * basicSalary);
+  const exemption3 = isMetroCity ? (0.5 * basicSalary) : (0.4 * basicSalary);
   
-  return Math.min(actualHRA, rentMinusBasic, percentOfBasic);
+  return Math.min(exemption1, exemption2, exemption3);
 };
 
 /**
- * Calculate marginal relief for incomes just above rebate limits
+ * Calculate marginal relief for income just above rebate limit
  */
-export const calculateMarginalRelief = (
-  taxAmount: number, 
-  taxableIncome: number, 
-  isNewRegime: boolean
-): number => {
-  // Implement marginal relief logic
-  if (isNewRegime) {
-    // For new regime (marginal relief for incomes just above 12L)
-    if (taxableIncome > 1200000 && taxableIncome <= 1250000) {
-      const increasedTax = taxAmount;
-      const increaseInIncome = taxableIncome - 1200000;
-      if (increasedTax > increaseInIncome) {
-        return increasedTax - increaseInIncome;
-      }
-    }
-  } else {
-    // For old regime (marginal relief for incomes just above 5L)
-    if (taxableIncome > 500000 && taxableIncome <= 550000) {
-      const increasedTax = taxAmount;
-      const increaseInIncome = taxableIncome - 500000;
-      if (increasedTax > increaseInIncome) {
-        return increasedTax - increaseInIncome;
-      }
+export const calculateMarginalRelief = (tax: number, income: number, isNewRegime: boolean): number => {
+  const rebateLimit = isNewRegime ? 1200000 : 500000;
+  const additionalIncome = income - rebateLimit;
+  
+  // Only apply marginal relief for incomes just above rebate limit (within 50,000)
+  if (additionalIncome > 0 && additionalIncome < 50000) {
+    // Calculate marginal relief
+    const limitExcess = additionalIncome;
+    if (tax > limitExcess) {
+      return tax - limitExcess;
     }
   }
+  
   return 0;
-};
-
-/**
- * Format currency values to Indian Rupee format
- */
-export const formatIndianCurrency = (amount: number): string => {
-  const formatter = new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  });
-  return formatter.format(amount);
 };
