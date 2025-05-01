@@ -1,59 +1,52 @@
 
-import React, { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import React from 'react';
 import Navbar from '@/components/Navbar';
 import DashboardOverview from '@/components/DashboardOverview';
-import ExpenseTracker from '@/components/ExpenseTracker';
-import InvestmentCalculator from '@/components/InvestmentCalculator';
+import TransactionManager from '@/components/TransactionManager';
 import TaxCalculator from '@/components/TaxCalculator';
+import InvestmentCalculator from '@/components/InvestmentCalculator';
 
-const Index = () => {
-  const [activeTab, setActiveTab] = useState<string>('tax');
-  
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger
+} from '@/components/ui/tabs';
+
+export default function Index() {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="min-h-screen flex flex-col">
       <Navbar />
-      
-      <main className="flex-1 container mx-auto px-4 py-6">
-        <Tabs 
-          defaultValue="tax" 
-          value={activeTab} 
-          onValueChange={setActiveTab}
-          className="w-full"
-        >
-          <TabsList className="grid grid-cols-4 mb-8">
-            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-            <TabsTrigger value="expenses">Expenses</TabsTrigger>
-            <TabsTrigger value="investments">Investments</TabsTrigger>
-            <TabsTrigger value="tax">Tax Planner</TabsTrigger>
-          </TabsList>
+      <main className="flex-grow">
+        <div className="container mx-auto my-8 px-4">
+          <h1 className="text-3xl font-bold mb-6">Financial Dashboard</h1>
           
-          <TabsContent value="dashboard">
-            <DashboardOverview />
-          </TabsContent>
-          
-          <TabsContent value="expenses">
-            <ExpenseTracker />
-          </TabsContent>
-          
-          <TabsContent value="investments">
-            <InvestmentCalculator />
-          </TabsContent>
-          
-          <TabsContent value="tax">
-            <TaxCalculator />
-          </TabsContent>
-        </Tabs>
-      </main>
-      
-      <footer className="border-t border-border py-4">
-        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>Tax Calculation for Assessment Year 2026-27. Data is based on Union Budget 2025-26.</p>
-          <p className="mt-1">This application is for educational purposes only. Please consult a tax professional for official advice.</p>
+          <Tabs defaultValue="dashboard" className="space-y-6">
+            <TabsList className="mb-4">
+              <TabsTrigger value="dashboard">Overview</TabsTrigger>
+              <TabsTrigger value="transactions">Transactions</TabsTrigger>
+              <TabsTrigger value="tax">Tax Planner</TabsTrigger>
+              <TabsTrigger value="investments">Investments</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="dashboard">
+              <DashboardOverview />
+            </TabsContent>
+            
+            <TabsContent value="transactions">
+              <TransactionManager />
+            </TabsContent>
+            
+            <TabsContent value="tax">
+              <TaxCalculator />
+            </TabsContent>
+            
+            <TabsContent value="investments">
+              <InvestmentCalculator />
+            </TabsContent>
+          </Tabs>
         </div>
-      </footer>
+      </main>
     </div>
   );
-};
-
-export default Index;
+}
