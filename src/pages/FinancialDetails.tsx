@@ -1,80 +1,92 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { BadgeDollarSign, Calculator, Wallet } from 'lucide-react';
 
-const FinancialDetails: React.FC = () => {
+const FinancialDetails = () => {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
   
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     monthlyIncome: '',
     monthlyExpenses: '',
     savingsGoal: ''
   });
   
-  const [errors, setErrors] = useState({
-    monthlyIncome: '',
-    monthlyExpenses: '',
-    savingsGoal: ''
-  });
-
+  // Fetch existing financial details if available
+  useEffect(() => {
+    const fetchFinancialDetails = async () => {
+      if (!user) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('monthly_income, monthly_expenses, savings_goal')
+          .eq('id', user.id)
+          .single();
+        
+        if (error) {
+          if (error.code !== 'PGRST116') { // Not found error
+            throw error;
+          }
+          return; // No data found, use default empty values
+        }
+        
+        // Only set values if they exist
+        setFormData({
+          monthlyIncome: data.monthly_income !== null ? String(data.monthly_income) : '',
+          monthlyExpenses: data.monthly_expenses !== null ? String(data.monthly_expenses) : '',
+          savingsGoal: data.savings_goal !== null ? String(data.savings_goal) : ''
+        });
+      } catch (error) {
+        console.error('Error fetching financial details:', error);
+        toast({
+          title: 'Something went wrong',
+          description: 'Unable to fetch your financial details',
+          variant: 'destructive',
+        });
+      }
+    };
+    
+    fetchFinancialDetails();
+  }, [user]);
+  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
     
-    // Clear error when user types
-    if (errors[name as keyof typeof errors]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
+    // Only allow numeric input with decimals
+    if (value === '' || /^\d*\.?\d*$/.test(value)) {
+      setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
-
-  const validateForm = () => {
-    const newErrors = {
-      monthlyIncome: '',
-      monthlyExpenses: '',
-      savingsGoal: ''
-    };
-    let isValid = true;
-
-    if (!formData.monthlyIncome || parseFloat(formData.monthlyIncome) <= 0) {
-      newErrors.monthlyIncome = 'Monthly income must be a positive number';
-      isValid = false;
-    }
-
-    if (!formData.monthlyExpenses || parseFloat(formData.monthlyExpenses) <= 0) {
-      newErrors.monthlyExpenses = 'Monthly expenses must be a positive number';
-      isValid = false;
-    }
-
-    if (!formData.savingsGoal || parseFloat(formData.savingsGoal) < 0) {
-      newErrors.savingsGoal = 'Savings goal must be a positive number';
-      isValid = false;
-    }
-
-    setErrors(newErrors);
-    return isValid;
-  };
-
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validateForm()) {
+    if (!user) {
+      toast({
+        title: 'Authentication error',
+        description: 'You must be logged in to save financial details',
+        variant: 'destructive',
+      });
       return;
     }
     
-    if (!user) {
+    // Validate inputs
+    if (!formData.monthlyIncome.trim() || !formData.monthlyExpenses.trim() || !formData.savingsGoal.trim()) {
       toast({
-        title: "Authentication Error",
-        description: "You must be logged in to save financial details",
-        variant: "destructive"
+        title: 'Missing information',
+        description: 'Please fill in all fields',
+        variant: 'destructive',
       });
       return;
     }
@@ -82,6 +94,7 @@ const FinancialDetails: React.FC = () => {
     setIsSubmitting(true);
     
     try {
+      // Update the profile with financial details
       const { error } = await supabase
         .from('profiles')
         .update({
@@ -95,109 +108,99 @@ const FinancialDetails: React.FC = () => {
       if (error) throw error;
       
       toast({
-        title: "Financial details saved!",
-        description: "Your financial information has been updated successfully."
+        title: 'Financial details saved',
+        description: 'Your financial information has been updated successfully',
       });
       
+      // Redirect to dashboard
       navigate('/');
-      
     } catch (error) {
       console.error('Error saving financial details:', error);
       toast({
-        title: "Error saving details",
-        description: "There was a problem saving your financial details. Please try again.",
-        variant: "destructive"
+        title: 'Error saving details',
+        description: 'There was a problem updating your financial information',
+        variant: 'destructive',
       });
     } finally {
       setIsSubmitting(false);
     }
   };
-
-  const handleSkip = () => {
-    navigate('/');
-  };
-
+  
   return (
-    <div className="flex min-h-screen justify-center items-center bg-background p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-2xl">Financial Setup</CardTitle>
-          <CardDescription>
-            Help us personalize your financial dashboard by providing some basic information.
-          </CardDescription>
-        </CardHeader>
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <label htmlFor="monthlyIncome" className="text-sm font-medium">
-                Average Monthly Income (₹)
-              </label>
-              <Input
-                id="monthlyIncome"
-                name="monthlyIncome"
-                type="number"
-                placeholder="50,000"
-                value={formData.monthlyIncome}
-                onChange={handleChange}
-              />
-              {errors.monthlyIncome && (
-                <p className="text-sm text-red-500">{errors.monthlyIncome}</p>
-              )}
-            </div>
-            
-            <div className="space-y-2">
-              <label htmlFor="monthlyExpenses" className="text-sm font-medium">
-                Average Monthly Expenses (₹)
-              </label>
-              <Input
-                id="monthlyExpenses"
-                name="monthlyExpenses"
-                type="number"
-                placeholder="30,000"
-                value={formData.monthlyExpenses}
-                onChange={handleChange}
-              />
-              {errors.monthlyExpenses && (
-                <p className="text-sm text-red-500">{errors.monthlyExpenses}</p>
-              )}
-            </div>
-            
-            <div className="space-y-2">
-              <label htmlFor="savingsGoal" className="text-sm font-medium">
-                Monthly Savings Goal (₹)
-              </label>
-              <Input
-                id="savingsGoal"
-                name="savingsGoal"
-                type="number"
-                placeholder="10,000"
-                value={formData.savingsGoal}
-                onChange={handleChange}
-              />
-              {errors.savingsGoal && (
-                <p className="text-sm text-red-500">{errors.savingsGoal}</p>
-              )}
-            </div>
-          </CardContent>
-          
-          <CardFooter className="flex justify-between">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={handleSkip}
-              disabled={isSubmitting}
-            >
-              Skip for Now
-            </Button>
-            <Button 
-              type="submit"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Saving..." : "Save & Continue"}
-            </Button>
-          </CardFooter>
-        </form>
-      </Card>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-50 to-indigo-100 dark:from-blue-950 dark:to-indigo-900 p-4">
+      <div className="w-full max-w-md">
+        <Card className="shadow-xl border-t-4 border-t-blue-500">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl">Financial Setup</CardTitle>
+            <CardDescription>
+              Tell us about your financial situation to get personalized insights
+            </CardDescription>
+          </CardHeader>
+          <form onSubmit={handleSubmit}>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="monthlyIncome" className="flex items-center gap-2">
+                  <BadgeDollarSign className="w-4 h-4 text-blue-500" />
+                  Average Monthly Income (₹)
+                </Label>
+                <Input
+                  id="monthlyIncome"
+                  name="monthlyIncome"
+                  type="text"
+                  inputMode="decimal"
+                  placeholder="e.g. 50000"
+                  value={formData.monthlyIncome}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="monthlyExpenses" className="flex items-center gap-2">
+                  <Wallet className="w-4 h-4 text-red-500" />
+                  Average Monthly Expenses (₹)
+                </Label>
+                <Input
+                  id="monthlyExpenses"
+                  name="monthlyExpenses"
+                  type="text"
+                  inputMode="decimal"
+                  placeholder="e.g. 30000"
+                  value={formData.monthlyExpenses}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="savingsGoal" className="flex items-center gap-2">
+                  <Calculator className="w-4 h-4 text-green-500" />
+                  Monthly Savings Goal (₹)
+                </Label>
+                <Input
+                  id="savingsGoal"
+                  name="savingsGoal"
+                  type="text"
+                  inputMode="decimal"
+                  placeholder="e.g. 10000"
+                  value={formData.savingsGoal}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button 
+                type="submit" 
+                className="w-full"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Saving...' : 'Save Financial Details'}
+              </Button>
+            </CardFooter>
+          </form>
+        </Card>
+      </div>
     </div>
   );
 };

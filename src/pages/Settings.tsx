@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,49 +8,31 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { Download, LogOut, Moon, Sun } from 'lucide-react';
+import { useTheme } from '@/contexts/ThemeContext';
+import { Download, LogOut, Moon, Sun, Bell, Lock, ShieldAlert } from 'lucide-react';
 
 const Settings = () => {
   const { user, signOut } = useAuth();
+  const { theme, setTheme } = useTheme();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
-  
-  useEffect(() => {
-    // Check if dark mode is already active
-    const isDark = document.documentElement.classList.contains('dark');
-    setIsDarkMode(isDark);
-    
-    // Apply theme from local storage or user preferences
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark' || 
-        (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      document.documentElement.classList.add('dark');
-      setIsDarkMode(true);
-    } else {
-      document.documentElement.classList.remove('dark');
-      setIsDarkMode(false);
-    }
-  }, []);
+  const [enableNotifications, setEnableNotifications] = useState(false);
   
   const handleThemeToggle = () => {
-    const newDarkMode = !isDarkMode;
-    setIsDarkMode(newDarkMode);
+    setTheme(theme === 'light' ? 'dark' : 'light');
+  };
+  
+  const handleNotificationsToggle = () => {
+    setEnableNotifications(!enableNotifications);
     
-    if (newDarkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-    
-    // Save user preference if logged in
-    if (user) {
-      // We could save this to user metadata or profile
-    }
+    toast({
+      title: !enableNotifications ? 'Notifications enabled' : 'Notifications disabled',
+      description: !enableNotifications ? 
+        'You will now receive notifications' : 
+        'You will no longer receive notifications',
+    });
   };
   
   const handleExportTransactions = async () => {
@@ -72,6 +54,7 @@ const Settings = () => {
           title: "No transactions found",
           description: "You don't have any transactions to export."
         });
+        setIsExporting(false);
         return;
       }
       
@@ -130,30 +113,36 @@ const Settings = () => {
       });
     }
   };
-
+  
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 py-4">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Settings</h1>
-        <Button variant="outline" onClick={() => window.history.back()}>
-          Back to Dashboard
-        </Button>
+        <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
       </div>
       
       <div className="grid grid-cols-1 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Appearance</CardTitle>
-            <CardDescription>Manage how Money Map looks and feels</CardDescription>
+            <CardTitle className="flex items-center gap-2">
+              <Sun className="h-5 w-5 text-yellow-500" />
+              <Moon className="h-5 w-5 text-blue-500" />
+              <span>Appearance</span>
+            </CardTitle>
+            <CardDescription>Customize how Money Map looks and feels</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                {isDarkMode ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
-                <span>Dark Mode</span>
+              <div className="flex items-center space-x-4">
+                {theme === 'dark' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+                <div>
+                  <p className="font-medium">{theme === 'dark' ? 'Dark' : 'Light'} Mode</p>
+                  <p className="text-sm text-muted-foreground">
+                    {theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                  </p>
+                </div>
               </div>
               <Switch 
-                checked={isDarkMode}
+                checked={theme === 'dark'}
                 onCheckedChange={handleThemeToggle}
               />
             </div>
@@ -162,8 +151,37 @@ const Settings = () => {
         
         <Card>
           <CardHeader>
-            <CardTitle>Data Management</CardTitle>
-            <CardDescription>Export and manage your data</CardDescription>
+            <CardTitle className="flex items-center gap-2">
+              <Bell className="h-5 w-5 text-amber-500" />
+              <span>Notifications</span>
+            </CardTitle>
+            <CardDescription>Control how you receive notifications</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div>
+                  <p className="font-medium">Enable Notifications</p>
+                  <p className="text-sm text-muted-foreground">
+                    Get updates about your financial activity
+                  </p>
+                </div>
+              </div>
+              <Switch 
+                checked={enableNotifications}
+                onCheckedChange={handleNotificationsToggle}
+              />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Lock className="h-5 w-5 text-emerald-500" />
+              <span>Privacy</span>
+            </CardTitle>
+            <CardDescription>Manage data and privacy settings</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
@@ -187,10 +205,13 @@ const Settings = () => {
         
         <Card>
           <CardHeader>
-            <CardTitle>Account</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <ShieldAlert className="h-5 w-5 text-red-500" />
+              <span>Account</span>
+            </CardTitle>
             <CardDescription>Manage your account settings</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent>
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-medium">Log out from Money Map</h3>

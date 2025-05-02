@@ -3,9 +3,12 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/contexts/AuthContext';
-import { Menu, X, Home, DollarSign, TrendingUp, Calculator, User, Settings, Wallet } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { useTheme } from '@/contexts/ThemeContext';
+import { 
+  Menu, X, Home, Wallet, TrendingUp, Calculator, User, 
+  Settings, Sun, Moon 
+} from 'lucide-react';
 
 interface NavItemProps {
   to: string;
@@ -21,9 +24,9 @@ const NavItem = ({ to, icon: Icon, children, isOpen, end = false }: NavItemProps
       to={to}
       end={end}
       className={({ isActive }) => cn(
-        "flex items-center gap-3 w-full p-2 rounded-md transition-colors duration-200",
+        "flex items-center gap-3 w-full p-3 rounded-md transition-colors duration-200",
         "hover:bg-blue-700/50",
-        isActive ? "bg-blue-700/60 font-medium" : "font-medium",
+        isActive ? "bg-blue-700/60 font-medium" : "font-normal opacity-85",
       )}
     >
       <Icon className="h-5 w-5 shrink-0" />
@@ -32,11 +35,15 @@ const NavItem = ({ to, icon: Icon, children, isOpen, end = false }: NavItemProps
   );
 };
 
-const Sidebar: React.FC = () => {
-  const { user } = useAuth();
+interface SidebarProps {
+  userName: string;
+  avatarUrl?: string;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ userName, avatarUrl }) => {
   const [isOpen, setIsOpen] = useState(true);
-  const [userName, setUserName] = useState<string | null>(null);
   const location = useLocation();
+  const { theme, setTheme } = useTheme();
   
   const isMobile = () => window.innerWidth < 768;
   
@@ -57,28 +64,19 @@ const Sidebar: React.FC = () => {
     }
   }, [location]);
   
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      if (user) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('first_name, last_name')
-          .eq('id', user.id)
-          .single();
-        
-        if (data && (data.first_name || data.last_name)) {
-          setUserName(`${data.first_name || ''} ${data.last_name || ''}`.trim());
-        } else {
-          // Extract name from email if profile data not available
-          setUserName(user.email?.split('@')[0] || 'User');
-        }
-      }
-    };
-    
-    fetchUserProfile();
-  }, [user]);
-  
   const toggleSidebar = () => setIsOpen(!isOpen);
+  
+  const toggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
+  };
+
+  // Get first letter of name for avatar fallback
+  const getInitials = () => {
+    if (userName.includes('@')) {
+      return userName.charAt(0).toUpperCase();
+    }
+    return userName.charAt(0).toUpperCase();
+  };
   
   return (
     <>
@@ -110,25 +108,48 @@ const Sidebar: React.FC = () => {
       >
         <div className="flex flex-col h-full p-4 overflow-y-auto">
           <div className="mb-6">
-            <h1 className="text-2xl font-bold mb-4">Money Map</h1>
-            {user && (
-              <div className="bg-blue-700/40 rounded-md p-3 mb-4">
-                <p className="text-sm text-blue-100">Hello,</p>
-                <p className="text-lg font-semibold truncate">{userName}</p>
+            <h1 className="text-2xl font-bold mb-6">Money Map</h1>
+            <div className="bg-blue-700/40 rounded-md p-3 mb-4 flex items-center gap-3">
+              <Avatar className="h-10 w-10 border-2 border-white/20">
+                <AvatarImage src={avatarUrl} />
+                <AvatarFallback className="bg-blue-500 text-white">
+                  {getInitials()}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="text-sm text-blue-100 opacity-90">Hello,</p>
+                <p className="text-base font-medium truncate">{userName}</p>
               </div>
-            )}
+            </div>
           </div>
           
-          <nav className="space-y-2 flex-1">
+          <nav className="space-y-1 flex-1">
             <NavItem to="/" icon={Home} isOpen={isOpen} end>Dashboard</NavItem>
-            <NavItem to="/expense-tracker" icon={Wallet} isOpen={isOpen}>Expense Tracker</NavItem>
-            <NavItem to="/investment" icon={TrendingUp} isOpen={isOpen}>Investment Planning</NavItem>
-            <NavItem to="/tax" icon={Calculator} isOpen={isOpen}>Tax Planner</NavItem>
+            <NavItem to="/expenses" icon={Wallet} isOpen={isOpen}>Expense Tracker</NavItem>
+            <NavItem to="/investments" icon={TrendingUp} isOpen={isOpen}>Investment Planning</NavItem>
+            <NavItem to="/tax-planner" icon={Calculator} isOpen={isOpen}>Tax Planner</NavItem>
           </nav>
           
-          <div className="pt-4 mt-auto border-t border-blue-500/50">
+          <div className="pt-4 mt-auto border-t border-blue-500/50 space-y-1">
             <NavItem to="/profile" icon={User} isOpen={isOpen}>Profile</NavItem>
             <NavItem to="/settings" icon={Settings} isOpen={isOpen}>Settings</NavItem>
+            
+            <button 
+              onClick={toggleTheme}
+              className="flex items-center gap-3 w-full p-3 rounded-md transition-colors duration-200 hover:bg-blue-700/50"
+            >
+              {theme === 'light' ? (
+                <>
+                  <Moon className="h-5 w-5 shrink-0" />
+                  {isOpen && <span>Dark Mode</span>}
+                </>
+              ) : (
+                <>
+                  <Sun className="h-5 w-5 shrink-0" />
+                  {isOpen && <span>Light Mode</span>}
+                </>
+              )}
+            </button>
           </div>
         </div>
       </aside>

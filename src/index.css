@@ -33,7 +33,7 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83% 53%;
 
-    --radius: 0.5rem;
+    --radius: 1rem;
   }
 
   .dark {
@@ -83,8 +83,23 @@
   }
 }
 
+/* Animations */
 .animate-fade-in {
   animation: fade-in 0.5s ease-out;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.5s ease-out;
+}
+
+@keyframes slide-in {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 /* Finance-specific styles */
@@ -100,6 +115,7 @@
   color: #FF9500;
 }
 
+/* Card styles */
 .card-gradient {
   @apply bg-gradient-to-br from-card to-secondary/80 backdrop-blur-sm;
 }
@@ -125,4 +141,16 @@
 .sidebar-link.active::after {
   content: '';
   @apply absolute right-0 top-1/2 transform -translate-y-1/2 h-4 w-1 rounded-full bg-primary;
+}
+
+/* Button styles */
+.btn-gradient {
+  @apply bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700;
+}
+
+/* Responsive utilities */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
 }
