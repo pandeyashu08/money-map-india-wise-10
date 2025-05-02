@@ -83,16 +83,14 @@ const FinancialDetails: React.FC = () => {
     
     try {
       const { error } = await supabase
-        .from('financial_details')
-        .upsert({
-          user_id: user.id,
+        .from('profiles')
+        .update({
           monthly_income: parseFloat(formData.monthlyIncome),
           monthly_expenses: parseFloat(formData.monthlyExpenses),
           savings_goal: parseFloat(formData.savingsGoal),
           updated_at: new Date().toISOString()
-        }, {
-          onConflict: 'user_id'
-        });
+        })
+        .eq('id', user.id);
       
       if (error) throw error;
       

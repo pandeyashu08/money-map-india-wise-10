@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface ProtectedRouteProps {
   children?: React.ReactNode;
@@ -13,6 +14,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const [hasFinancialDetails, setHasFinancialDetails] = useState<boolean | null>(null);
   const [checkingDetails, setCheckingDetails] = useState(true);
   const location = useLocation();
+  const { toast } = useToast();
 
   useEffect(() => {
     const checkFinancialDetails = async () => {
@@ -22,14 +24,17 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
       }
 
       try {
+        // Check if user has financial details
         const { data, error } = await supabase
-          .from('financial_details')
-          .select('id')
-          .eq('user_id', user.id)
+          .from('profiles')
+          .select('monthly_income')
+          .eq('id', user.id)
           .single();
-          
-        setHasFinancialDetails(!!data && !error);
+
+        // User has financial details if monthly_income exists
+        setHasFinancialDetails(!!data?.monthly_income);
       } catch (error) {
+        console.error('Error checking financial details:', error);
         setHasFinancialDetails(false);
       } finally {
         setCheckingDetails(false);

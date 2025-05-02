@@ -34,7 +34,7 @@ const Profile = () => {
       try {
         const { data, error } = await supabase
           .from('profiles')
-          .select('first_name, last_name, avatar_url')
+          .select('first_name, last_name')
           .eq('id', user.id)
           .single();
         
@@ -46,10 +46,12 @@ const Profile = () => {
             lastName: data.last_name || '',
             currency: 'INR' // Default to INR
           });
-          
-          if (data.avatar_url) {
-            setAvatarUrl(data.avatar_url);
-          }
+        }
+
+        // Check if user has avatar_url in storage
+        const { data: userData, error: userError } = await supabase.auth.getUser();
+        if (!userError && userData.user.user_metadata?.avatar_url) {
+          setAvatarUrl(userData.user.user_metadata.avatar_url);
         }
       } catch (error) {
         console.error('Error fetching profile:', error);
@@ -178,11 +180,10 @@ const Profile = () => {
         .getPublicUrl(filePath);
       
       if (publicUrl) {
-        // Update profile with avatar URL
-        const { error: updateError } = await supabase
-          .from('profiles')
-          .update({ avatar_url: publicUrl.publicUrl })
-          .eq('id', user.id);
+        // Update user metadata with avatar URL
+        const { error: updateError } = await supabase.auth.updateUser({
+          data: { avatar_url: publicUrl.publicUrl }
+        });
         
         if (updateError) throw updateError;
         
