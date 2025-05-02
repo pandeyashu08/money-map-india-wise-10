@@ -16,6 +16,9 @@ export type Database = {
           first_name: string | null
           id: string
           last_name: string | null
+          monthly_expenses: number | null
+          monthly_income: number | null
+          savings_goal: number | null
           updated_at: string
         }
         Insert: {
@@ -24,6 +27,9 @@ export type Database = {
           first_name?: string | null
           id: string
           last_name?: string | null
+          monthly_expenses?: number | null
+          monthly_income?: number | null
+          savings_goal?: number | null
           updated_at?: string
         }
         Update: {
@@ -32,6 +38,9 @@ export type Database = {
           first_name?: string | null
           id?: string
           last_name?: string | null
+          monthly_expenses?: number | null
+          monthly_income?: number | null
+          savings_goal?: number | null
           updated_at?: string
         }
         Relationships: []
