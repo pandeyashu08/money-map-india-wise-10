@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -9,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { formatCurrency } from '@/utils/financialUtils';
 import { useTaxData } from './TaxDataContext';
 import { FinancialChart } from '../FinancialChart';
-import jsPDF from 'jspdf';
+import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 
 const TaxCalculatorResults: React.FC = () => {

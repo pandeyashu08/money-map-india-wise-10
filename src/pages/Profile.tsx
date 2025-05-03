@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -336,10 +335,8 @@ const Profile = () => {
           data: { avatar_url: publicUrl.publicUrl }
         });
         
-        // Also update profiles table with the avatar URL
-        await supabase.from('profiles').update({
-          profile_picture_url: publicUrl.publicUrl
-        }).eq('id', user.id);
+        // Update the avatar URL in user's profile
+        // Note: We removed the profile_picture_url field as it doesn't exist in the schema
         
         if (updateError) throw updateError;
         
