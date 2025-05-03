@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -235,6 +236,21 @@ const Profile = () => {
     setIsSubmitting(true);
     
     try {
+      // First verify the current password
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user?.email || '',
+        password: passwordData.currentPassword
+      });
+      
+      if (signInError) {
+        setPasswordErrors(prev => ({
+          ...prev,
+          currentPassword: 'Current password is incorrect'
+        }));
+        throw signInError;
+      }
+      
+      // Then update the password
       const { error } = await supabase.auth.updateUser({
         password: passwordData.newPassword
       });
@@ -254,11 +270,14 @@ const Profile = () => {
       });
     } catch (error) {
       console.error('Error updating password:', error);
-      toast({
-        title: 'Password update failed',
-        description: 'There was a problem updating your password',
-        variant: 'destructive'
-      });
+      
+      if (!passwordErrors.currentPassword) {
+        toast({
+          title: 'Password update failed',
+          description: 'There was a problem updating your password',
+          variant: 'destructive'
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -319,7 +338,7 @@ const Profile = () => {
         .from('profile-pictures')
         .upload(filePath, file, {
           cacheControl: '3600',
-          upsert: false
+          upsert: true // Set to true to overwrite existing files
         });
       
       if (uploadError) throw uploadError;
@@ -334,9 +353,6 @@ const Profile = () => {
         const { error: updateError } = await supabase.auth.updateUser({
           data: { avatar_url: publicUrl.publicUrl }
         });
-        
-        // Update the avatar URL in user's profile
-        // Note: We removed the profile_picture_url field as it doesn't exist in the schema
         
         if (updateError) throw updateError;
         

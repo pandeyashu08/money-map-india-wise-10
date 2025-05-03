@@ -54,7 +54,7 @@ const MainLayout: React.FC = () => {
         }
         avatarUrl={profileData?.avatar_url || undefined}
       />
-      <main className="flex-1 ml-0 md:ml-64 p-4 md:p-6 transition-all">
+      <main className="flex-1 ml-0 md:ml-[260px] p-4 md:p-6 transition-all">
         <div className="container mx-auto max-w-6xl">
           <Outlet />
         </div>
