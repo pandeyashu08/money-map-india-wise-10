@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import StatCard from './StatCard';
-import FinancialChart from './FinancialChart';
+import { FinancialChart } from './FinancialChart';
 import { formatCurrency, sampleTransactions, expenseCategories } from '@/utils/financialUtils';
 import { ArrowUpRight, Wallet, CreditCard, Landmark, PiggyBank } from 'lucide-react';
 import { cn } from "@/lib/utils";

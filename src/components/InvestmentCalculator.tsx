@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatCurrency, calculateSIPReturns } from '@/utils/financialUtils';
-import FinancialChart from './FinancialChart';
+import { FinancialChart } from './FinancialChart';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { CreditCard, Landmark, Calculator, AlertCircle, TrendingUp } from 'lucide-react';
 

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { 
-  BarChart, LineChart, PieChart, DonutChart, AreaChart, 
+  BarChart, LineChart, PieChart, DonutChart, AreaChart
 } from '@/components/ui/chart';
 
 interface ChartProps {
@@ -12,16 +12,22 @@ interface ChartProps {
   colors?: string[];
   valueFormatter?: (value: number) => string;
   className?: string;
+  title?: string;
+  dataKey?: string;
+  additionalDataKeys?: string[];
 }
 
 export function FinancialChart({ 
   type, 
   data, 
   index = "name", 
-  categories, 
+  categories,
   colors = ["#2563eb", "#dc2626"], 
   valueFormatter,
-  className
+  className,
+  title,
+  dataKey,
+  additionalDataKeys
 }: ChartProps) {
   if (!data || data.length === 0) {
     return (
@@ -36,13 +42,18 @@ export function FinancialChart({
 
   const formatter = valueFormatter || defaultValueFormatter;
 
+  // If categories are not provided but dataKey is, create categories from dataKey and additionalDataKeys
+  const derivedCategories = !categories && dataKey ? 
+    [dataKey, ...(additionalDataKeys || [])] : 
+    categories;
+
   switch (type) {
     case 'bar':
       return (
         <BarChart
           data={data}
           index={index}
-          categories={categories}
+          categories={derivedCategories || []}
           colors={colors}
           valueFormatter={formatter}
           className={className}
@@ -53,7 +64,7 @@ export function FinancialChart({
         <LineChart
           data={data}
           index={index}
-          categories={categories}
+          categories={derivedCategories || []}
           colors={colors}
           valueFormatter={formatter}
           className={className}
@@ -61,7 +72,6 @@ export function FinancialChart({
           showGridLines
           curveType="monotone"
           connectNulls
-          showAnimation
         />
       );
     case 'area':
@@ -69,14 +79,13 @@ export function FinancialChart({
         <AreaChart
           data={data}
           index={index}
-          categories={categories}
+          categories={derivedCategories || []}
           colors={colors}
           valueFormatter={formatter}
           className={className}
           showLegend
           showGridLines
           connectNulls
-          showAnimation
         />
       );
     case 'pie':
@@ -84,13 +93,12 @@ export function FinancialChart({
         <PieChart
           data={data}
           index={index}
-          category="value"
+          category={dataKey || "value"}
           colors={colors}
           valueFormatter={formatter}
           className={className}
           showLabel
           showTooltip
-          showAnimation
         />
       );
     case 'donut':
@@ -98,13 +106,12 @@ export function FinancialChart({
         <DonutChart
           data={data}
           index={index}
-          category="value"
+          category={dataKey || "value"}
           colors={colors}
           valueFormatter={formatter}
           className={className}
           showLabel
           showTooltip
-          showAnimation
         />
       );
     default:
