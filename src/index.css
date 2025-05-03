@@ -1,9 +1,11 @@
 
+/* Import font first */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Then add Tailwind directives */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @layer base {
   :root {
@@ -16,7 +18,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 221.2 83% 53%;
+    --primary: 222.2 47.4% 11.2%;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
@@ -33,9 +35,13 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83% 53%;
+    --ring: 222.2 84% 4.9%;
 
     --radius: 0.5rem;
+    
+    --finance-blue: 214 100% 50%;
+    --finance-green: 142 71% 45%;
+    --finance-red: 0 84% 60%;
   }
 
   .dark {
@@ -48,7 +54,7 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 217.2 91.2% 59.8%;
+    --primary: 210 40% 98%;
     --primary-foreground: 222.2 47.4% 11.2%;
 
     --secondary: 217.2 32.6% 17.5%;
@@ -65,7 +71,7 @@
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
+    --ring: 212.7 26.8% 83.9%;
   }
 }
 
@@ -73,116 +79,8 @@
   * {
     @apply border-border;
   }
-  html {
-    scroll-behavior: smooth;
-    font-family: 'Inter', sans-serif;
-  }
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
-    font-size: 16px;
   }
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-medium tracking-tight;
-  }
-}
-
-/* Financial UI Specific Styles */
-.dashboard-card {
-  @apply transition-shadow duration-200 hover:shadow-md border rounded-lg;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-
-/* Text Color Classes */
-.text-finance-blue {
-  @apply text-blue-600;
-}
-
-.text-finance-green {
-  @apply text-green-500;
-}
-
-.text-finance-red {
-  @apply text-red-500;
-}
-
-/* Background Colors */
-.bg-finance-blue {
-  @apply bg-blue-600;
-}
-
-.bg-finance-green {
-  @apply bg-green-500;
-}
-
-.bg-finance-red {
-  @apply bg-red-500;
-}
-
-/* Badge Styles for Categories */
-.badge-housing {
-  @apply bg-blue-100 text-blue-800;
-}
-
-.badge-food {
-  @apply bg-green-100 text-green-800;
-}
-
-.badge-utilities {
-  @apply bg-yellow-100 text-yellow-800;
-}
-
-.badge-transportation {
-  @apply bg-purple-100 text-purple-800;
-}
-
-.badge-entertainment {
-  @apply bg-pink-100 text-pink-800;
-}
-
-.badge-health {
-  @apply bg-red-100 text-red-800;
-}
-
-.badge-income {
-  @apply bg-green-100 text-green-800;
-}
-
-/* Animation Classes */
-.animate-fade-in {
-  animation: fadeIn 0.5s ease-out forwards;
-}
-
-.animate-slide-up {
-  animation: slideUp 0.5s ease-out forwards;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-/* Table Styles */
-.table-striped tbody tr:nth-of-type(odd) {
-  @apply bg-muted/50;
-}
-
-/* Chart Tooltips */
-.chart-tooltip {
-  @apply bg-popover rounded-md shadow-md p-2 border border-border text-sm;
-}
-
-/* Premium Sidebar Modifications */
-.premium-sidebar {
-  @apply bg-gradient-to-b from-blue-600 to-blue-800;
-}
-
-/* Compact Money Formatting */
-.compact-currency {
-  font-variant-numeric: tabular-nums;
 }
