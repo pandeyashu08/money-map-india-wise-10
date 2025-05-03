@@ -114,7 +114,7 @@ const Sidebar: React.FC<SidebarProps> = ({ userName, avatarUrl }) => {
               <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-white text-blue-600 font-bold text-xl">
                 M
               </div>
-              <div className="font-bold text-lg">MoneyFlow Pro</div>
+              <div className="font-bold text-lg">Money Map India</div>
             </div>
             
             <div className="bg-blue-700/40 rounded-md p-3 mb-4 flex items-center gap-3">

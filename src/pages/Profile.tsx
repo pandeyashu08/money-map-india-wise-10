@@ -265,21 +265,41 @@ const Profile = () => {
     }
   };
   
+  // Validate file size and type
+  const validateFile = (file: File) => {
+    // Check file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    if (file.size > maxSize) {
+      toast({
+        title: 'File too large',
+        description: 'Profile picture must be less than 5MB',
+        variant: 'destructive'
+      });
+      return false;
+    }
+    
+    // Check file type (only JPEG, PNG allowed)
+    const validTypes = ['image/jpeg', 'image/png'];
+    if (!validTypes.includes(file.type)) {
+      toast({
+        title: 'Invalid file type',
+        description: 'Only JPEG and PNG images are allowed',
+        variant: 'destructive'
+      });
+      return false;
+    }
+    
+    return true;
+  };
+  
   // Handle avatar upload
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || !e.target.files[0] || !user) return;
     
     const file = e.target.files[0];
-    const fileSize = file.size / 1024 / 1024; // size in MB
     
-    if (fileSize > 2) {
-      toast({
-        title: 'File too large',
-        description: 'Please select an image under 2MB',
-        variant: 'destructive'
-      });
-      return;
-    }
+    // Validate file
+    if (!validateFile(file)) return;
     
     setUploadingAvatar(true);
     
@@ -296,9 +316,12 @@ const Profile = () => {
       
       // Upload the file
       const filePath = `${user.id}/${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadError, data } = await supabase.storage
         .from('profile-pictures')
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
       
       if (uploadError) throw uploadError;
       
@@ -312,6 +335,11 @@ const Profile = () => {
         const { error: updateError } = await supabase.auth.updateUser({
           data: { avatar_url: publicUrl.publicUrl }
         });
+        
+        // Also update profiles table with the avatar URL
+        await supabase.from('profiles').update({
+          profile_picture_url: publicUrl.publicUrl
+        }).eq('id', user.id);
         
         if (updateError) throw updateError;
         
@@ -367,6 +395,12 @@ const Profile = () => {
                   )}
                 </div>
                 
+                <div className="text-center mb-4">
+                  <p className="text-sm text-muted-foreground">
+                    JPG or PNG. Max 5MB.
+                  </p>
+                </div>
+                
                 <label>
                   <Button 
                     variant="outline" 
@@ -381,7 +415,7 @@ const Profile = () => {
                     type="file" 
                     id="avatar-upload"
                     className="hidden" 
-                    accept="image/*"
+                    accept="image/jpeg, image/png"
                     onChange={handleAvatarChange}
                     disabled={uploadingAvatar}
                   />

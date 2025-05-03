@@ -18,6 +18,7 @@ import {
   Calendar, Plus, ArrowUpRight, Trash2, Edit, Filter, Download, MoreHorizontal
 } from "lucide-react";
 import { format } from 'date-fns';
+import { CSVLink } from 'react-csv';
 
 interface TransactionFormData {
   description: string;
@@ -227,6 +228,18 @@ const ExpenseTracker: React.FC = () => {
     const categoryColor = expenseCategories.find(c => c.name === name)?.color || '#6C757D';
     return { name, value, color: categoryColor };
   });
+
+  // Prepare CSV data
+  const csvData = [
+    ['Type', 'Description', 'Category', 'Amount', 'Date'], // Header row
+    ...filteredTransactions.map(t => [
+      t.type,
+      t.description,
+      t.category,
+      t.amount,
+      format(new Date(t.date), 'dd/MM/yyyy')
+    ])
+  ];
   
   return (
     <div className="space-y-8">
@@ -240,9 +253,15 @@ const ExpenseTracker: React.FC = () => {
           <Button variant="outline" className="gap-1">
             <Filter className="h-4 w-4" /> Filter
           </Button>
-          <Button variant="outline" className="gap-1">
-            <Download className="h-4 w-4" /> Export
-          </Button>
+          
+          <CSVLink 
+            data={csvData} 
+            filename={"transactions.csv"}
+            className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+          >
+            <Download className="h-4 w-4 mr-1" /> Export
+          </CSVLink>
+          
           <Button onClick={() => { resetForm(); setIsAddDialogOpen(true); }}>
             <Plus className="h-4 w-4 mr-1" /> New Transaction
           </Button>
