@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
@@ -60,9 +61,11 @@ const Dashboard: React.FC = () => {
       return data as FinancialData;
     },
     enabled: !!user,
-    onError: (error) => {
-      console.error('Error fetching financial data:', error);
-      setHasFinancialData(false);
+    meta: {
+      onError: (error: Error) => {
+        console.error('Error fetching financial data:', error);
+        setHasFinancialData(false);
+      }
     }
   });
   
@@ -83,8 +86,10 @@ const Dashboard: React.FC = () => {
       return data as Transaction[];
     },
     enabled: !!user,
-    onError: (error) => {
-      console.error('Error fetching transactions:', error);
+    meta: {
+      onError: (error: Error) => {
+        console.error('Error fetching transactions:', error);
+      }
     }
   });
   
