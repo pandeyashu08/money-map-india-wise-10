@@ -7,7 +7,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useTheme } from '@/contexts/ThemeContext';
 import { 
   Menu, X, Home, Wallet, TrendingUp, Calculator, User, 
-  Settings, Sun, Moon 
+  Settings, Sun, Moon, BarChart2
 } from 'lucide-react';
 
 interface NavItemProps {
@@ -25,8 +25,10 @@ const NavItem = ({ to, icon: Icon, children, isOpen, end = false }: NavItemProps
       end={end}
       className={({ isActive }) => cn(
         "flex items-center gap-3 w-full p-3 rounded-md transition-colors duration-200",
-        "hover:bg-blue-700/50",
-        isActive ? "bg-blue-700/60 font-medium" : "font-normal opacity-85",
+        "hover:bg-blue-700/30",
+        isActive 
+          ? "bg-blue-700/40 font-medium border-l-4 border-blue-500" 
+          : "font-normal opacity-85 border-l-4 border-transparent",
       )}
     >
       <Icon className="h-5 w-5 shrink-0" />
@@ -101,14 +103,20 @@ const Sidebar: React.FC<SidebarProps> = ({ userName, avatarUrl }) => {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-30 flex flex-col w-64 bg-gradient-to-b from-blue-600 to-indigo-600 text-white shadow-lg transition-transform duration-300",
+          "fixed inset-y-0 left-0 z-30 flex flex-col w-[200px] bg-gradient-to-b from-blue-600 to-indigo-700 text-white shadow-lg transition-transform duration-300",
           isOpen ? "translate-x-0" : "-translate-x-full",
           "md:translate-x-0"
         )}
       >
         <div className="flex flex-col h-full p-4 overflow-y-auto">
           <div className="mb-6">
-            <h1 className="text-2xl font-bold mb-6">Money Map</h1>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-white text-blue-600 font-bold text-xl">
+                M
+              </div>
+              <div className="font-bold text-lg">MoneyFlow Pro</div>
+            </div>
+            
             <div className="bg-blue-700/40 rounded-md p-3 mb-4 flex items-center gap-3">
               <Avatar className="h-10 w-10 border-2 border-white/20">
                 <AvatarImage src={avatarUrl} />
@@ -117,17 +125,17 @@ const Sidebar: React.FC<SidebarProps> = ({ userName, avatarUrl }) => {
                 </AvatarFallback>
               </Avatar>
               <div>
-                <p className="text-sm text-blue-100 opacity-90">Hello,</p>
+                <p className="text-sm text-blue-100 opacity-90">Welcome,</p>
                 <p className="text-base font-medium truncate">{userName}</p>
               </div>
             </div>
           </div>
           
           <nav className="space-y-1 flex-1">
-            <NavItem to="/" icon={Home} isOpen={isOpen} end>Dashboard</NavItem>
-            <NavItem to="/expenses" icon={Wallet} isOpen={isOpen}>Expense Tracker</NavItem>
-            <NavItem to="/investments" icon={TrendingUp} isOpen={isOpen}>Investment Planning</NavItem>
-            <NavItem to="/tax-planner" icon={Calculator} isOpen={isOpen}>Tax Planner</NavItem>
+            <NavItem to="/" icon={BarChart2} isOpen={isOpen} end>Dashboard</NavItem>
+            <NavItem to="/expenses" icon={Wallet} isOpen={isOpen}>Transactions</NavItem>
+            <NavItem to="/investments" icon={TrendingUp} isOpen={isOpen}>Investments</NavItem>
+            <NavItem to="/tax-planner" icon={Calculator} isOpen={isOpen}>Tax Calculator</NavItem>
           </nav>
           
           <div className="pt-4 mt-auto border-t border-blue-500/50 space-y-1">

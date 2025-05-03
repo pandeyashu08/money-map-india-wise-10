@@ -3,6 +3,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -33,7 +35,7 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83% 53%;
 
-    --radius: 1rem;
+    --radius: 0.5rem;
   }
 
   .dark {
@@ -73,84 +75,114 @@
   }
   html {
     scroll-behavior: smooth;
+    font-family: 'Inter', sans-serif;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
     font-feature-settings: "rlig" 1, "calt" 1;
+    font-size: 16px;
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-medium tracking-tight;
   }
 }
 
-/* Animations */
-.animate-fade-in {
-  animation: fade-in 0.5s ease-out;
+/* Financial UI Specific Styles */
+.dashboard-card {
+  @apply transition-shadow duration-200 hover:shadow-md border rounded-lg;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-@keyframes fade-in {
+/* Text Color Classes */
+.text-finance-blue {
+  @apply text-blue-600;
+}
+
+.text-finance-green {
+  @apply text-green-500;
+}
+
+.text-finance-red {
+  @apply text-red-500;
+}
+
+/* Background Colors */
+.bg-finance-blue {
+  @apply bg-blue-600;
+}
+
+.bg-finance-green {
+  @apply bg-green-500;
+}
+
+.bg-finance-red {
+  @apply bg-red-500;
+}
+
+/* Badge Styles for Categories */
+.badge-housing {
+  @apply bg-blue-100 text-blue-800;
+}
+
+.badge-food {
+  @apply bg-green-100 text-green-800;
+}
+
+.badge-utilities {
+  @apply bg-yellow-100 text-yellow-800;
+}
+
+.badge-transportation {
+  @apply bg-purple-100 text-purple-800;
+}
+
+.badge-entertainment {
+  @apply bg-pink-100 text-pink-800;
+}
+
+.badge-health {
+  @apply bg-red-100 text-red-800;
+}
+
+.badge-income {
+  @apply bg-green-100 text-green-800;
+}
+
+/* Animation Classes */
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.5s ease-out forwards;
+}
+
+@keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
-.animate-slide-in {
-  animation: slide-in 0.5s ease-out;
-}
-
-@keyframes slide-in {
+@keyframes slideUp {
   from { transform: translateY(20px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
 
-/* Finance-specific styles */
-.text-finance-blue {
-  color: #0466C8;
+/* Table Styles */
+.table-striped tbody tr:nth-of-type(odd) {
+  @apply bg-muted/50;
 }
 
-.text-finance-green {
-  color: #38B000;
+/* Chart Tooltips */
+.chart-tooltip {
+  @apply bg-popover rounded-md shadow-md p-2 border border-border text-sm;
 }
 
-.text-finance-warning {
-  color: #FF9500;
+/* Premium Sidebar Modifications */
+.premium-sidebar {
+  @apply bg-gradient-to-b from-blue-600 to-blue-800;
 }
 
-/* Card styles */
-.card-gradient {
-  @apply bg-gradient-to-br from-card to-secondary/80 backdrop-blur-sm;
-}
-
-.glass {
-  @apply bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg;
-}
-
-.dark .glass {
-  @apply bg-gray-900/30 border-gray-800/50;
-}
-
-/* Dashboard Card Hover Effects */
-.dashboard-card {
-  @apply transition-all duration-200 hover:shadow-lg hover:-translate-y-1;
-}
-
-/* Sidebar active link indicator */
-.sidebar-link.active {
-  @apply relative;
-}
-
-.sidebar-link.active::after {
-  content: '';
-  @apply absolute right-0 top-1/2 transform -translate-y-1/2 h-4 w-1 rounded-full bg-primary;
-}
-
-/* Button styles */
-.btn-gradient {
-  @apply bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700;
-}
-
-/* Responsive utilities */
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+/* Compact Money Formatting */
+.compact-currency {
+  font-variant-numeric: tabular-nums;
 }
