@@ -36,7 +36,7 @@ const Dashboard: React.FC = () => {
   const [hasFinancialData, setHasFinancialData] = useState<boolean | null>(null);
   
   // Get financial data
-  const { data: financialData, isLoading: isLoadingFinancial } = useQuery({
+  const { data: financialData, isLoading: isLoadingFinancial } = useQuery<FinancialData, Error>({
     queryKey: ['financialData', user?.id],
     queryFn: async () => {
       if (!user) throw new Error('User not authenticated');
@@ -70,7 +70,7 @@ const Dashboard: React.FC = () => {
   });
   
   // Get recent transactions
-  const { data: transactions, isLoading: isLoadingTransactions } = useQuery({
+  const { data: transactions, isLoading: isLoadingTransactions } = useQuery<Transaction[], Error>({
     queryKey: ['transactions', user?.id],
     queryFn: async () => {
       if (!user) throw new Error('User not authenticated');
