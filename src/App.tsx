@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { FinancialDataProvider } from "./contexts/FinancialDataContext";
+import { AIProvider } from "./contexts/AIContext";
 
 // Main Layout and Pages
 import MainLayout from "./layouts/MainLayout";
@@ -29,39 +30,41 @@ const App = () => (
     <AuthProvider>
       <ThemeProvider>
         <FinancialDataProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Routes>
-                {/* Public routes */}
-                <Route path="/landing" element={<LandingPage />} />
-                <Route path="/auth" element={<Auth />} />
-                
-                {/* Protected routes with sidebar layout */}
-                <Route element={<ProtectedRoute />}>
-                  <Route element={<MainLayout />}>
-                    <Route path="/" element={<Dashboard />} />
-                    <Route path="/dashboard" element={<Navigate to="/" replace />} />
-                    <Route path="/expenses" element={<ExpenseTracker />} />
-                    <Route path="/investments" element={<InvestmentPlanning />} />
-                    <Route path="/tax-planner" element={<TaxPlanner />} />
-                    <Route path="/profile" element={<Profile />} />
-                    <Route path="/settings" element={<Settings />} />
+          <AIProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <Routes>
+                  {/* Public routes */}
+                  <Route path="/landing" element={<LandingPage />} />
+                  <Route path="/auth" element={<Auth />} />
+                  
+                  {/* Protected routes with sidebar layout */}
+                  <Route element={<ProtectedRoute />}>
+                    <Route element={<MainLayout />}>
+                      <Route path="/" element={<Dashboard />} />
+                      <Route path="/dashboard" element={<Navigate to="/" replace />} />
+                      <Route path="/expenses" element={<ExpenseTracker />} />
+                      <Route path="/investments" element={<InvestmentPlanning />} />
+                      <Route path="/tax-planner" element={<TaxPlanner />} />
+                      <Route path="/profile" element={<Profile />} />
+                      <Route path="/settings" element={<Settings />} />
+                    </Route>
+                    
+                    {/* Full-width protected routes (no sidebar) */}
+                    <Route path="/financial-details" element={<FinancialDetails />} />
                   </Route>
                   
-                  {/* Full-width protected routes (no sidebar) */}
-                  <Route path="/financial-details" element={<FinancialDetails />} />
-                </Route>
-                
-                {/* Redirect root to landing page for non-authenticated users */}
-                <Route path="/" element={<Navigate to="/landing" replace />} />
-                
-                {/* Catch-all route */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
-          </TooltipProvider>
+                  {/* Redirect root to landing page for non-authenticated users */}
+                  <Route path="/" element={<Navigate to="/landing" replace />} />
+                  
+                  {/* Catch-all route */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </BrowserRouter>
+            </TooltipProvider>
+          </AIProvider>
         </FinancialDataProvider>
       </ThemeProvider>
     </AuthProvider>

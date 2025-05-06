@@ -1,14 +1,17 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { formatCurrency, categorizeTransaction, expenseCategories } from '@/utils/financialUtils';
+import { predictExpenseCategory, initializeAI, trainAnomalyDetector, detectAnomaly } from '@/utils/aiUtils';
 import { useToast } from "@/hooks/use-toast";
-import { Calendar, Wallet, Plus, ArrowUpRight, Loader2 } from "lucide-react";
+import { Calendar, Wallet, Plus, ArrowUpRight, Loader2, AlertTriangle } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface Transaction {
   id: string;
@@ -17,6 +20,7 @@ interface Transaction {
   type: 'income' | 'expense';
   category: string;
   date: string;
+  isAnomaly?: boolean;
 }
 
 const TransactionManager: React.FC = () => {
@@ -25,6 +29,8 @@ const TransactionManager: React.FC = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [aiLoading, setAILoading] = useState(false);
+  const [aiEnabled, setAIEnabled] = useState(true);
   
   const [newTransaction, setNewTransaction] = useState({
     description: '',
@@ -33,6 +39,20 @@ const TransactionManager: React.FC = () => {
     date: new Date().toISOString().slice(0, 10),
     category: ''
   });
+
+  // Initialize AI models
+  useEffect(() => {
+    const loadAI = async () => {
+      try {
+        await initializeAI(setAILoading);
+      } catch (error) {
+        console.error('Could not initialize AI models:', error);
+        setAIEnabled(false);
+      }
+    };
+    
+    loadAI();
+  }, []);
   
   useEffect(() => {
     if (!user) return;
@@ -48,6 +68,19 @@ const TransactionManager: React.FC = () => {
         if (error) throw error;
         
         setTransactions(data as Transaction[]);
+        
+        // Train anomaly detector with fetched data
+        if (data && data.length > 0 && aiEnabled) {
+          await trainAnomalyDetector(data);
+          
+          // Check for anomalies
+          const transactionsWithAnomalies = data.map(transaction => ({
+            ...transaction,
+            isAnomaly: detectAnomaly(transaction)
+          }));
+          
+          setTransactions(transactionsWithAnomalies);
+        }
       } catch (error) {
         console.error('Error fetching transactions:', error);
         toast({
@@ -61,12 +94,30 @@ const TransactionManager: React.FC = () => {
     };
     
     fetchTransactions();
-  }, [user, toast]);
+  }, [user, toast, aiEnabled]);
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setNewTransaction(prev => ({ ...prev, [name]: value }));
+    
+    // Use AI to predict category when description changes
+    if (name === 'description' && value && aiEnabled && newTransaction.type === 'expense') {
+      predictCategory(value);
+    }
   };
+  
+  const predictCategory = useCallback(async (description: string) => {
+    if (!description || !aiEnabled) return;
+    
+    try {
+      const predictedCategory = await predictExpenseCategory(description);
+      if (predictedCategory) {
+        setNewTransaction(prev => ({ ...prev, category: predictedCategory }));
+      }
+    } catch (error) {
+      console.error('Error predicting category:', error);
+    }
+  }, [aiEnabled]);
   
   const handleTypeChange = (value: string) => {
     setNewTransaction(prev => ({
@@ -132,7 +183,14 @@ const TransactionManager: React.FC = () => {
       
       // Add new transaction to the list
       if (data && data.length > 0) {
-        setTransactions(prev => [data[0] as Transaction, ...prev]);
+        const newTx = data[0] as Transaction;
+        
+        // Check if it's an anomaly
+        if (aiEnabled) {
+          newTx.isAnomaly = detectAnomaly(newTx);
+        }
+        
+        setTransactions(prev => [newTx, ...prev]);
       }
       
       // Reset form
@@ -166,7 +224,20 @@ const TransactionManager: React.FC = () => {
       
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Add New Transaction</CardTitle>
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-lg">Add New Transaction</CardTitle>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">AI Suggestions</span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setAIEnabled(!aiEnabled)}
+                className={`px-3 ${aiEnabled ? 'bg-primary text-primary-foreground' : ''}`}
+              >
+                {aiEnabled ? 'On' : 'Off'}
+              </Button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-5">
@@ -217,7 +288,12 @@ const TransactionManager: React.FC = () => {
           
           {newTransaction.type === 'expense' && (
             <div className="mt-4">
-              <label className="block text-sm font-medium mb-1">Category</label>
+              <label className="block text-sm font-medium mb-1">
+                Category
+                {aiEnabled && newTransaction.description && (
+                  <span className="ml-2 text-xs text-muted-foreground">(AI suggested)</span>
+                )}
+              </label>
               <Select value={newTransaction.category} onValueChange={handleCategoryChange}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select category" />
@@ -281,7 +357,23 @@ const TransactionManager: React.FC = () => {
                       )}
                     </div>
                     <div>
-                      <p className="font-medium">{transaction.description}</p>
+                      <div className="flex items-center">
+                        <p className="font-medium">{transaction.description}</p>
+                        {transaction.isAnomaly && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="ml-2">
+                                  <AlertTriangle className="h-4 w-4 text-amber-500" />
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="text-xs">Unusual transaction detected</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
+                      </div>
                       <div className="flex items-center text-xs text-muted-foreground">
                         <Calendar className="h-3 w-3 mr-1" />
                         {new Date(transaction.date).toLocaleDateString('en-IN', { 
