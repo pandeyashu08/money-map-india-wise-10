@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -67,19 +66,25 @@ const TransactionManager: React.FC = () => {
           
         if (error) throw error;
         
-        setTransactions(data as Transaction[]);
+        // Ensure the type field matches our expected type
+        const typedTransactions = (data as any[]).map(tx => ({
+          ...tx,
+          type: tx.type === 'income' ? 'income' : 'expense' as 'income' | 'expense'
+        }));
         
         // Train anomaly detector with fetched data
-        if (data && data.length > 0 && aiEnabled) {
-          await trainAnomalyDetector(data);
+        if (typedTransactions.length > 0 && aiEnabled) {
+          await trainAnomalyDetector(typedTransactions);
           
           // Check for anomalies
-          const transactionsWithAnomalies = data.map(transaction => ({
+          const transactionsWithAnomalies = typedTransactions.map(transaction => ({
             ...transaction,
             isAnomaly: detectAnomaly(transaction)
           }));
           
           setTransactions(transactionsWithAnomalies);
+        } else {
+          setTransactions(typedTransactions);
         }
       } catch (error) {
         console.error('Error fetching transactions:', error);
@@ -183,7 +188,7 @@ const TransactionManager: React.FC = () => {
       
       // Add new transaction to the list
       if (data && data.length > 0) {
-        const newTx = data[0] as Transaction;
+        const newTx = data[0] as unknown as Transaction;
         
         // Check if it's an anomaly
         if (aiEnabled) {

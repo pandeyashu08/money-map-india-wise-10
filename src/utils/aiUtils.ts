@@ -241,7 +241,7 @@ export const trainAnomalyDetector = async (transactions: any[]): Promise<void> =
     const data = transactions.map(tx => {
       const date = new Date(tx.date);
       return [
-        tx.amount, // Amount
+        Number(tx.amount), // Amount
         date.getDay(), // Day of week (0-6)
         date.getHours() // Hour of day (0-23)
       ];
@@ -281,7 +281,7 @@ export const detectAnomaly = (transaction: any): boolean => {
     // Extract features
     const date = new Date(transaction.date);
     const features = [
-      transaction.amount,
+      Number(transaction.amount),
       date.getDay(),
       date.getHours()
     ];
@@ -300,7 +300,8 @@ export const detectAnomaly = (transaction: any): boolean => {
     const output = anomalyDetector.predict(normalizedInput) as tf.Tensor;
     
     // Calculate reconstruction error
-    const error = tf.metrics.meanSquaredError(normalizedInput, output).dataSync()[0];
+    const errorTensor = tf.metrics.meanSquaredError(normalizedInput, output);
+    const error = errorTensor.dataSync()[0];
     
     // Detect anomaly if error is above threshold
     const threshold = 0.15; // This threshold should be tuned based on data
@@ -310,6 +311,7 @@ export const detectAnomaly = (transaction: any): boolean => {
     input.dispose();
     normalizedInput.dispose();
     output.dispose();
+    errorTensor.dispose();
     
     return isAnomaly;
   } catch (error) {
@@ -334,7 +336,7 @@ export const generateBudgetInsights = (
     const currentExpensesByCategory = transactions
       .filter(tx => tx.type === 'expense')
       .reduce((acc: Record<string, number>, tx: any) => {
-        acc[tx.category] = (acc[tx.category] || 0) + tx.amount;
+        acc[tx.category] = (acc[tx.category] || 0) + Number(tx.amount);
         return acc;
       }, {});
     
@@ -342,7 +344,7 @@ export const generateBudgetInsights = (
     const previousExpensesByCategory = previousMonthTransactions
       .filter(tx => tx.type === 'expense')
       .reduce((acc: Record<string, number>, tx: any) => {
-        acc[tx.category] = (acc[tx.category] || 0) + tx.amount;
+        acc[tx.category] = (acc[tx.category] || 0) + Number(tx.amount);
         return acc;
       }, {});
     
