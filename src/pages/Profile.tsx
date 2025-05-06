@@ -236,7 +236,21 @@ const Profile = () => {
     setIsSubmitting(true);
     
     try {
-      // Update the password
+      // First verify the current password
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user?.email || '',
+        password: passwordData.currentPassword
+      });
+      
+      if (signInError) {
+        setPasswordErrors(prev => ({
+          ...prev,
+          currentPassword: 'Current password is incorrect'
+        }));
+        throw signInError;
+      }
+      
+      // Then update the password
       const { error } = await supabase.auth.updateUser({
         password: passwordData.newPassword
       });
@@ -257,11 +271,13 @@ const Profile = () => {
     } catch (error) {
       console.error('Error updating password:', error);
       
-      toast({
-        title: 'Password update failed',
-        description: 'There was a problem updating your password',
-        variant: 'destructive'
-      });
+      if (!passwordErrors.currentPassword) {
+        toast({
+          title: 'Password update failed',
+          description: 'There was a problem updating your password',
+          variant: 'destructive'
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -296,18 +312,28 @@ const Profile = () => {
   
   // Handle avatar upload
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || !e.target.files[0] || !user) return;
+    console.log('Avatar change triggered');
+    if (!e.target.files || !e.target.files[0] || !user) {
+      console.log('No file selected or user not logged in');
+      return;
+    }
     
     const file = e.target.files[0];
+    console.log('File selected:', file.name, 'Size:', file.size, 'Type:', file.type);
     
     // Validate file
-    if (!validateFile(file)) return;
+    if (!validateFile(file)) {
+      console.log('File validation failed');
+      return;
+    }
     
     setUploadingAvatar(true);
+    console.log('Starting upload...');
     
     try {
       // Upload the file to Supabase storage
       const filePath = `${user.id}/${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
+      console.log('File path:', filePath);
       
       const { error: uploadError, data } = await supabase.storage
         .from('profile-pictures')
@@ -316,12 +342,19 @@ const Profile = () => {
           upsert: true
         });
       
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw uploadError;
+      }
+      
+      console.log('File uploaded successfully, data:', data);
       
       // Get the public URL
       const { data: publicUrl } = supabase.storage
         .from('profile-pictures')
         .getPublicUrl(filePath);
+      
+      console.log('Public URL:', publicUrl);
       
       if (publicUrl) {
         // Update user metadata with avatar URL
@@ -329,8 +362,12 @@ const Profile = () => {
           data: { avatar_url: publicUrl.publicUrl }
         });
         
-        if (updateError) throw updateError;
+        if (updateError) {
+          console.error('Update user error:', updateError);
+          throw updateError;
+        }
         
+        console.log('User metadata updated with avatar URL');
         setAvatarUrl(publicUrl.publicUrl);
         
         toast({
@@ -347,6 +384,10 @@ const Profile = () => {
       });
     } finally {
       setUploadingAvatar(false);
+      // Reset the file input
+      if (e.target) {
+        e.target.value = '';
+      }
     }
   };
   
@@ -397,23 +438,24 @@ const Profile = () => {
                   </p>
                 </div>
                 
-                <label>
+                <label htmlFor="avatar-upload" className="cursor-pointer">
                   <Button 
-                    variant="outline" 
+                    variant="outline"
+                    type="button" 
                     className="cursor-pointer"
                     disabled={uploadingAvatar}
                   >
                     {uploadingAvatar ? "Uploading..." : "Change Picture"}
                     <Upload className="ml-2 h-4 w-4" />
-                    <input 
-                      type="file" 
-                      id="avatar-upload"
-                      className="hidden" 
-                      accept="image/jpeg, image/png"
-                      onChange={handleAvatarChange}
-                      disabled={uploadingAvatar}
-                    />
                   </Button>
+                  <input 
+                    type="file" 
+                    id="avatar-upload"
+                    className="hidden" 
+                    accept="image/jpeg, image/png"
+                    onChange={handleAvatarChange}
+                    disabled={uploadingAvatar}
+                  />
                 </label>
               </CardContent>
             </Card>
