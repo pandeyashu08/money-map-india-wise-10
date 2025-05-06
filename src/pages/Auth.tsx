@@ -57,10 +57,10 @@ const Auth = () => {
           </CardDescription>
         </CardHeader>
         
-        <Tabs defaultValue="signin" className="w-full">
+        <Tabs defaultValue="signin" className="w-full px-4">
           <TabsList className="grid grid-cols-2 mb-4">
             <TabsTrigger value="signin">Sign In</TabsTrigger>
-            <TabsTrigger value="signup">Create Account</TabsTrigger>
+            <TabsTrigger value="signup">Sign Up</TabsTrigger>
           </TabsList>
           
           <TabsContent value="signin">
