@@ -92,7 +92,7 @@ const Profile = () => {
     };
     
     fetchProfile();
-  }, [user]);
+  }, [user, toast]);
   
   // Handle profile form changes
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -236,21 +236,7 @@ const Profile = () => {
     setIsSubmitting(true);
     
     try {
-      // First verify the current password
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: user?.email || '',
-        password: passwordData.currentPassword
-      });
-      
-      if (signInError) {
-        setPasswordErrors(prev => ({
-          ...prev,
-          currentPassword: 'Current password is incorrect'
-        }));
-        throw signInError;
-      }
-      
-      // Then update the password
+      // Update the password
       const { error } = await supabase.auth.updateUser({
         password: passwordData.newPassword
       });
@@ -271,13 +257,11 @@ const Profile = () => {
     } catch (error) {
       console.error('Error updating password:', error);
       
-      if (!passwordErrors.currentPassword) {
-        toast({
-          title: 'Password update failed',
-          description: 'There was a problem updating your password',
-          variant: 'destructive'
-        });
-      }
+      toast({
+        title: 'Password update failed',
+        description: 'There was a problem updating your password',
+        variant: 'destructive'
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -322,23 +306,14 @@ const Profile = () => {
     setUploadingAvatar(true);
     
     try {
-      // Check if storage bucket exists and create if not
-      const { data: buckets } = await supabase.storage.listBuckets();
-      const profileBucket = buckets?.find(b => b.name === 'profile-pictures');
-      
-      if (!profileBucket) {
-        await supabase.storage.createBucket('profile-pictures', {
-          public: true
-        });
-      }
-      
-      // Upload the file
+      // Upload the file to Supabase storage
       const filePath = `${user.id}/${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
+      
       const { error: uploadError, data } = await supabase.storage
         .from('profile-pictures')
         .upload(filePath, file, {
           cacheControl: '3600',
-          upsert: true // Set to true to overwrite existing files
+          upsert: true
         });
       
       if (uploadError) throw uploadError;
@@ -375,6 +350,14 @@ const Profile = () => {
     }
   };
   
+  // Get first letter of name for avatar fallback
+  const getInitials = () => {
+    if (formData.firstName) {
+      return formData.firstName.charAt(0).toUpperCase();
+    }
+    return user?.email?.charAt(0).toUpperCase() || 'U';
+  };
+
   return (
     <div className="space-y-6 py-4">
       <div className="flex justify-between items-center">
@@ -419,19 +402,18 @@ const Profile = () => {
                     variant="outline" 
                     className="cursor-pointer"
                     disabled={uploadingAvatar}
-                    onClick={() => document.getElementById('avatar-upload')?.click()}
                   >
                     {uploadingAvatar ? "Uploading..." : "Change Picture"}
                     <Upload className="ml-2 h-4 w-4" />
+                    <input 
+                      type="file" 
+                      id="avatar-upload"
+                      className="hidden" 
+                      accept="image/jpeg, image/png"
+                      onChange={handleAvatarChange}
+                      disabled={uploadingAvatar}
+                    />
                   </Button>
-                  <input 
-                    type="file" 
-                    id="avatar-upload"
-                    className="hidden" 
-                    accept="image/jpeg, image/png"
-                    onChange={handleAvatarChange}
-                    disabled={uploadingAvatar}
-                  />
                 </label>
               </CardContent>
             </Card>
