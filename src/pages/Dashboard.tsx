@@ -20,6 +20,26 @@ const Dashboard = () => {
     summary, transactions, profile, isLoading, formatCurrency, formatCompactCurrency 
   } = useFinancialData();
 
+  // More detailed spending breakdown data
+  const spendingBreakdownData = [
+    { name: 'Housing', value: 25000 },
+    { name: 'Food', value: 6000 },
+    { name: 'Transport', value: 5000 },
+    { name: 'Utilities', value: 4000 },
+    { name: 'Entertainment', value: 3500 },
+    { name: 'Health', value: 2500 },
+    { name: 'Shopping', value: 2000 }
+  ];
+
+  // Financial health radar chart data
+  const financialHealthData = [
+    { name: 'Savings Rate', value: summary.savingsRate, fullMark: 100 },
+    { name: 'Debt Ratio', value: 25, fullMark: 100 },
+    { name: 'Emergency Fund', value: 75, fullMark: 100 },
+    { name: 'Investment', value: 60, fullMark: 100 },
+    { name: 'Budget Adherence', value: 85, fullMark: 100 },
+  ];
+
   return (
     <div className="space-y-6 py-4">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
@@ -194,6 +214,32 @@ const Dashboard = () => {
         </Card>
         
         <Card className="dashboard-card">
+          <CardHeader>
+            <CardTitle>Spending Breakdown</CardTitle>
+            <p className="text-sm text-muted-foreground">Where your money goes</p>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="h-[300px] flex items-center justify-center">
+                <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full"></div>
+              </div>
+            ) : (
+              <FinancialChart
+                type="pie"
+                data={spendingBreakdownData}
+                index="name"
+                category="value"
+                colors={["#2563eb", "#4ade80", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899", "#06b6d4"]}
+                valueFormatter={(value) => `₹${value.toLocaleString()}`}
+                className="h-[300px]"
+              />
+            )}
+          </CardContent>
+        </Card>
+      </div>
+      
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card className="dashboard-card">
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
               <CardTitle>Recent Transactions</CardTitle>
@@ -211,6 +257,30 @@ const Dashboard = () => {
               limit={5}
               showViewAll={true}
             />
+          </CardContent>
+        </Card>
+        
+        <Card className="dashboard-card">
+          <CardHeader>
+            <CardTitle>Savings Growth</CardTitle>
+            <p className="text-sm text-muted-foreground">Track your savings progress</p>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="h-[300px] flex items-center justify-center">
+                <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full"></div>
+              </div>
+            ) : (
+              <FinancialChart
+                type="area"
+                data={summary.monthlyData.map(m => ({ name: m.name, savings: m.income - m.expenses }))}
+                index="name"
+                categories={["savings"]}
+                colors={["#10b981"]}
+                valueFormatter={(value) => `₹${value.toLocaleString()}`}
+                className="h-[300px]"
+              />
+            )}
           </CardContent>
         </Card>
       </div>

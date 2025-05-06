@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import StatCard from './StatCard';
 import { FinancialChart } from './FinancialChart';
 import { formatCurrency, sampleTransactions, expenseCategories } from '@/utils/financialUtils';
-import { ArrowUpRight, Wallet, CreditCard, Landmark, PiggyBank } from 'lucide-react';
+import { ArrowUpRight, Wallet, CreditCard, Landmark, PiggyBank, BarChart2 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 
 const DashboardOverview: React.FC = () => {
@@ -36,6 +36,16 @@ const DashboardOverview: React.FC = () => {
     { name: 'Feb', value: 53000 },
     { name: 'Mar', value: 53000 },
     { name: 'Apr', value: 53500 }
+  ];
+  
+  // New data for investment performance chart
+  const investmentData = [
+    { name: 'Jan', value: 110000 },
+    { name: 'Feb', value: 112500 },
+    { name: 'Mar', value: 118000 },
+    { name: 'Apr', value: 125000 },
+    { name: 'May', value: 130000 },
+    { name: 'Jun', value: 128000 }
   ];
   
   return (
@@ -89,10 +99,11 @@ const DashboardOverview: React.FC = () => {
       
       <div className="grid gap-6 md:grid-cols-2">
         <FinancialChart
-          title="Savings Growth"
-          type="area"
-          data={savingsData}
+          title="Investment Performance"
+          type="line"
+          data={investmentData}
           colors={['#38B000']}
+          dataKey="value"
         />
         
         <Card>

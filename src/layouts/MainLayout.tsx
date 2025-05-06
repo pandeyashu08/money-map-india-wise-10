@@ -1,9 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
-import Sidebar from '@/components/Sidebar';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import AppSidebar from '@/components/AppSidebar';
+import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 
 const MainLayout: React.FC = () => {
   const { user } = useAuth();
@@ -46,20 +47,26 @@ const MainLayout: React.FC = () => {
   }, [user]);
 
   return (
-    <div className="flex min-h-screen bg-background text-foreground">
-      <Sidebar 
-        userName={profileData?.first_name ? 
-          `${profileData.first_name} ${profileData.last_name || ''}`.trim() : 
-          user?.email?.split('@')[0] || 'User'
-        }
-        avatarUrl={profileData?.avatar_url || undefined}
-      />
-      <main className="flex-1 ml-0 md:ml-[260px] p-4 md:p-6 transition-all">
-        <div className="container mx-auto max-w-6xl">
-          <Outlet />
-        </div>
-      </main>
-    </div>
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-background text-foreground">
+        <AppSidebar 
+          userName={profileData?.first_name ? 
+            `${profileData.first_name} ${profileData.last_name || ''}`.trim() : 
+            user?.email?.split('@')[0] || 'User'
+          }
+          avatarUrl={profileData?.avatar_url || undefined}
+        />
+        <SidebarInset className="p-4 md:p-6">
+          <div className="container mx-auto max-w-6xl">
+            <div className="flex items-center mb-6">
+              <SidebarTrigger className="mr-4" />
+              <h1 className="text-2xl font-bold">Money Map India</h1>
+            </div>
+            <Outlet />
+          </div>
+        </SidebarInset>
+      </div>
+    </SidebarProvider>
   );
 };
 
