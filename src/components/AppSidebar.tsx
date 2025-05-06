@@ -73,7 +73,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ userName, avatarUrl }) => {
 
   return (
     <>
-      <Sidebar>
+      <Sidebar className='bg-gray-200/30'>
         <SidebarHeader>
           <div className="flex items-center gap-2 px-2 pt-4">
             <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-800 shadow-lg text-white font-bold text-xl">
