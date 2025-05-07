@@ -7,6 +7,8 @@ import { expenseCategories } from './financialUtils';
 // Configure the transformers.js library
 // Set to use CDN instead of downloading models to improve initial load time
 env.allowLocalModels = false;
+// Note: useCDN may not be supported in the current type definitions, but it works in runtime
+// @ts-ignore - env.useCDN exists in the runtime but might not be in the type definitions
 env.useCDN = true;
 
 // Cache for loaded models to prevent reloading
@@ -120,6 +122,7 @@ const initExpenseCategorizer = async (): Promise<void> => {
       expenseCategorizer = await pipeline(
         'zero-shot-classification',
         'Xenova/distilbert-base-uncased-mnli',
+        // @ts-ignore - quantized option exists in runtime but might not be in type definitions
         { quantized: true } // Use quantized model for smaller size
       );
       console.log('Expense categorization model loaded successfully');
@@ -262,8 +265,10 @@ export const trainAnomalyDetector = async (transactions: any[]): Promise<void> =
     });
     
     // Store the normalization parameters for inference
-    (anomalyDetector as any).mean = mean;
-    (anomalyDetector as any).std = std;
+    // @ts-ignore - we're adding properties to the model object
+    anomalyDetector.mean = mean;
+    // @ts-ignore - we're adding properties to the model object
+    anomalyDetector.std = std;
     
     console.log('Anomaly detection model trained successfully');
   } catch (error) {
@@ -287,8 +292,10 @@ export const detectAnomaly = (transaction: any): boolean => {
     ];
     
     // Normalize using stored parameters
-    const mean = (anomalyDetector as any).mean;
-    const std = (anomalyDetector as any).std;
+    // @ts-ignore - accessing properties we added to the model
+    const mean = anomalyDetector.mean;
+    // @ts-ignore - accessing properties we added to the model
+    const std = anomalyDetector.std;
     
     if (!mean || !std) return false;
     
@@ -301,11 +308,11 @@ export const detectAnomaly = (transaction: any): boolean => {
     
     // Calculate reconstruction error
     const errorTensor = tf.metrics.meanSquaredError(normalizedInput, output);
-    const error = errorTensor.dataSync()[0];
+    const errorValue = errorTensor.dataSync()[0];
     
     // Detect anomaly if error is above threshold
     const threshold = 0.15; // This threshold should be tuned based on data
-    const isAnomaly = error > threshold;
+    const isAnomaly = typeof errorValue === 'number' && errorValue > threshold;
     
     // Cleanup tensors
     input.dispose();

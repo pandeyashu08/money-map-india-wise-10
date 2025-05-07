@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './AuthContext';
@@ -11,6 +10,7 @@ export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
   created_at?: string;
   tokens?: number;
+  conversation_id?: string;
 }
 
 export interface ChatConversation {
@@ -101,7 +101,21 @@ export const ChatbotProvider = ({ children }: ChatbotProviderProps) => {
           
         if (error) throw error;
         
-        setMessages(data || []);
+        // Fix type casting here to ensure all messages conform to ChatMessage interface
+        if (data) {
+          const typedMessages: ChatMessage[] = data.map(msg => ({
+            id: msg.id,
+            content: msg.content,
+            role: msg.role as 'system' | 'user' | 'assistant',
+            created_at: msg.created_at,
+            tokens: msg.tokens,
+            conversation_id: msg.conversation_id
+          }));
+          
+          setMessages(typedMessages);
+        } else {
+          setMessages([]);
+        }
       } catch (error) {
         console.error("Error fetching messages:", error);
         toast({
