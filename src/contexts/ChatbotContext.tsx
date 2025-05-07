@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './AuthContext';
@@ -40,7 +39,7 @@ interface ChatbotProviderProps {
 }
 
 export const ChatbotProvider = ({ children }: ChatbotProviderProps) => {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const { profile, transactions, summary } = useFinancialData();
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [conversations, setConversations] = useState<ChatConversation[]>([]);
@@ -360,10 +359,11 @@ export const ChatbotProvider = ({ children }: ChatbotProviderProps) => {
       };
       
       // Send messages to the AI
-      const response = await fetch('/api/chat-completion', {
+      const response = await fetch('https://egjwpfgsykcyuyqzooeh.functions.supabase.co/chat-completion', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(session?.access_token ? { 'Authorization': `Bearer ${session.access_token}` } : {})
         },
         body: JSON.stringify({
           messages: [systemMessage, ...recentMessages],

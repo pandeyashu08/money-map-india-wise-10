@@ -14,6 +14,9 @@ import { FinancialChart } from '@/components/FinancialChart';
 import CountUp from 'react-countup';
 import TransactionList from '@/components/TransactionList';
 
+//chatbot proto
+import ChatbotButton from '@/components/chatbot/ChatbotButton';
+
 const Dashboard = () => {
   const [timeFilter, setTimeFilter] = useState<'1w' | '1m' | '3m' | '1y'>('1m');
   const { 
@@ -283,6 +286,8 @@ const Dashboard = () => {
             )}
           </CardContent>
         </Card>
+
+        <ChatbotButton/>
       </div>
     </div>
   );
