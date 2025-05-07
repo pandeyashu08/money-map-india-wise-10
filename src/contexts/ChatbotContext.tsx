@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './AuthContext';
@@ -142,12 +143,13 @@ export const ChatbotProvider = ({ children }: ChatbotProviderProps) => {
       .on('postgres_changes', 
         { event: '*', schema: 'public', table: 'chat_messages' },
         (payload) => {
-          if (payload.new && payload.new.conversation_id === activeConversationId) {
+          if (payload.new && typeof payload.new === 'object' && 'conversation_id' in payload.new 
+              && payload.new.conversation_id === activeConversationId) {
             if (payload.eventType === 'INSERT') {
               setMessages(prev => [...prev, payload.new as ChatMessage]);
               
               // If this is an assistant message, stop the typing indicator
-              if (payload.new.role === 'assistant') {
+              if ('role' in payload.new && payload.new.role === 'assistant') {
                 setIsTyping(false);
               }
             }
