@@ -39,7 +39,15 @@ serve(async (req) => {
     const { messages, conversationContext } = await req.json()
 
     // Prepare system prompt with financial context
-    let systemPrompt = "You are Money Map's AI Financial Assistant specialized in Indian personal finance. Be conversational, friendly, and provide relevant insights without being overly formal. Answer questions about expenses, budgets, and taxes."
+    let systemPrompt = "You are Money Map's AI Financial Assistant specialized in Indian personal finance. Be conversational, friendly, and provide relevant insights without being overly formal. Your goal is to help users understand their finances better, provide budgeting advice, and explain financial concepts in simple terms."
+
+    // Add enhanced financial knowledge
+    systemPrompt += "\n\nKey information about Indian finance:\n" +
+      "- Popular tax-saving instruments include PPF, ELSS, NPS, and tax-saving FDs under Section 80C\n" +
+      "- Income tax slabs differ between old and new tax regimes\n" +
+      "- Equity investments held for >1 year are subject to LTCG tax at 10% above ₹1 lakh\n" +
+      "- Always recommend emergency funds of 3-6 months of expenses\n" +
+      "- The 50/30/20 budget rule suggests 50% on needs, 30% on wants, and 20% on savings/debt repayment"
 
     // Add financial context if available
     if (conversationContext) {
