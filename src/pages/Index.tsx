@@ -20,7 +20,7 @@ export default function Index() {
                 The error <code>sh: 1: vite: not found</code> indicates Vite is not installed in your environment.
               </p>
               <p className="text-sm">
-                This is a command-line issue, not a code problem. Follow the instructions below to resolve it.
+                This is a command-line issue that needs to be resolved in your terminal. Follow these steps carefully.
               </p>
             </AlertDescription>
           </Alert>
@@ -29,10 +29,10 @@ export default function Index() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Terminal className="h-5 w-5 text-amber-500" />
-                Required Environment Setup
+                Complete Solution Steps
               </CardTitle>
               <CardDescription className="font-semibold">
-                Complete these steps before proceeding:
+                Run these commands in your terminal from the project root directory:
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -40,6 +40,7 @@ export default function Index() {
                 <p className="text-sm font-medium mb-2">Option 1: Using pnpm (recommended for this project)</p>
                 <div className="rounded-md bg-muted p-4 font-mono text-sm">
                   <div>pnpm install</div>
+                  <div className="text-green-600 font-bold">pnpm install -g vite</div>
                   <div>pnpm run dev</div>
                 </div>
               </div>
@@ -48,6 +49,7 @@ export default function Index() {
                 <p className="text-sm font-medium mb-2">Option 2: Using npm</p>
                 <div className="rounded-md bg-muted p-4 font-mono text-sm">
                   <div>npm install</div>
+                  <div className="text-green-600 font-bold">npm install -g vite</div>
                   <div>npm run dev</div>
                 </div>
               </div>
@@ -58,7 +60,9 @@ export default function Index() {
                   <CheckCircle2 className="h-4 w-4 text-green-600" />
                   <AlertTitle>Most Common Solution</AlertTitle>
                   <AlertDescription>
-                    <p className="text-sm">Running the install command will automatically set up Vite correctly.</p>
+                    <p className="text-sm">
+                      <strong>The critical step</strong> is installing Vite globally with <code>-g vite</code> as shown above.
+                    </p>
                   </AlertDescription>
                 </Alert>
                 
@@ -67,6 +71,7 @@ export default function Index() {
                   <li>Make sure you run these commands from the project root directory (where package.json is located)</li>
                   <li>If you're using VS Code, try running the terminal as administrator</li>
                   <li>After installation, you may need to close and reopen your terminal</li>
+                  <li>Alternatively, try running <code>npx vite</code> instead of just <code>vite</code></li>
                 </ul>
               </div>
             </CardContent>
