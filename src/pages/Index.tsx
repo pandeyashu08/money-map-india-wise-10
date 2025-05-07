@@ -3,7 +3,7 @@ import React from 'react';
 import DashboardOverview from '@/components/DashboardOverview';
 import ChatbotButton from '@/components/chatbot/ChatbotButton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { MessageCircle, Terminal, AlertCircle } from 'lucide-react';
+import { MessageCircle, Terminal, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 
@@ -20,7 +20,7 @@ export default function Index() {
                 The error <code>sh: 1: vite: not found</code> indicates Vite is not installed in your environment.
               </p>
               <p className="text-sm">
-                Follow the instructions below to set up your development environment.
+                This is a command-line issue, not a code problem. Follow the instructions below to resolve it.
               </p>
             </AlertDescription>
           </Alert>
@@ -37,26 +37,32 @@ export default function Index() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <p className="text-sm font-medium mb-2">Option 1: Using npm (recommended for most users)</p>
+                <p className="text-sm font-medium mb-2">Option 1: Using pnpm (recommended for this project)</p>
                 <div className="rounded-md bg-muted p-4 font-mono text-sm">
-                  <div>npm install</div>
-                  <div>npm install -g vite</div>
-                  <div>npm run dev</div>
+                  <div>pnpm install</div>
+                  <div>pnpm run dev</div>
                 </div>
               </div>
               
               <div>
-                <p className="text-sm font-medium mb-2">Option 2: Using pnpm (as indicated by pnpm-lock.yaml file)</p>
+                <p className="text-sm font-medium mb-2">Option 2: Using npm</p>
                 <div className="rounded-md bg-muted p-4 font-mono text-sm">
-                  <div>pnpm install</div>
-                  <div>pnpm add -g vite</div>
-                  <div>pnpm dev</div>
+                  <div>npm install</div>
+                  <div>npm run dev</div>
                 </div>
               </div>
               
-              <div className="pt-2">
-                <p className="text-sm font-medium">Troubleshooting Notes:</p>
-                <ul className="list-disc pl-5 text-sm text-muted-foreground mt-2 space-y-1">
+              <div className="pt-2 space-y-3">
+                <p className="text-sm font-medium">Additional Troubleshooting Tips:</p>
+                <Alert className="bg-green-500/10 border-green-500/20 text-green-700">
+                  <CheckCircle2 className="h-4 w-4 text-green-600" />
+                  <AlertTitle>Most Common Solution</AlertTitle>
+                  <AlertDescription>
+                    <p className="text-sm">Running the install command will automatically set up Vite correctly.</p>
+                  </AlertDescription>
+                </Alert>
+                
+                <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1">
                   <li>You might need to run these commands with administrator privileges (use sudo on Linux/Mac)</li>
                   <li>Make sure you run these commands from the project root directory (where package.json is located)</li>
                   <li>If you're using VS Code, try running the terminal as administrator</li>
