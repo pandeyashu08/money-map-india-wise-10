@@ -1,120 +1,145 @@
 
 import React from 'react';
-import { 
-  BarChart, LineChart, PieChart, DonutChart, AreaChart
-} from '@/components/ui/chart';
+import {
+  Line,
+  Bar,
+  Area,
+  Pie,
+  PieChart,
+  LineChart,
+  BarChart,
+  AreaChart,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  Cell,
+} from 'recharts';
 
-interface ChartProps {
-  type: 'bar' | 'line' | 'pie' | 'donut' | 'area';
+export interface ChartProps {
+  type: 'line' | 'bar' | 'area' | 'pie';
   data: any[];
-  index?: string;
+  index: string;
   categories?: string[];
   colors?: string[];
   valueFormatter?: (value: number) => string;
   className?: string;
-  title?: string;
-  dataKey?: string;
-  additionalDataKeys?: string[];
 }
 
-export function FinancialChart({ 
-  type, 
-  data, 
-  index = "name", 
+export const FinancialChart = ({
+  type,
+  data,
+  index,
   categories,
-  colors = ["#2563eb", "#dc2626"], 
-  valueFormatter,
-  className,
-  title,
-  dataKey,
-  additionalDataKeys
-}: ChartProps) {
-  if (!data || data.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <p className="text-muted-foreground">No data available</p>
-      </div>
-    );
-  }
+  colors = ['#3498db', '#2ecc71', '#e74c3c', '#f39c12', '#9b59b6'],
+  valueFormatter = (value) => `${value}`,
+  className = 'h-80',
+}: ChartProps) => {
+  const renderChart = () => {
+    if (!data || data.length === 0) {
+      return <div className="flex items-center justify-center h-full">No data available</div>;
+    }
 
-  const defaultValueFormatter = (value: number) => 
-    `₹${new Intl.NumberFormat('en-IN').format(value)}`;
+    switch (type) {
+      case 'line':
+        return (
+          <LineChart data={data}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey={index} tick={{ fontSize: 12 }} />
+            <YAxis tick={{ fontSize: 12 }} />
+            <Tooltip formatter={(value: any) => valueFormatter(value)} />
+            <Legend />
+            {categories?.map((category, i) => (
+              <Line
+                key={category}
+                type="monotone"
+                dataKey={category}
+                stroke={colors[i % colors.length]}
+                strokeWidth={2}
+                dot={{ r: 4 }}
+                activeDot={{ r: 6 }}
+              />
+            ))}
+          </LineChart>
+        );
 
-  const formatter = valueFormatter || defaultValueFormatter;
+      case 'bar':
+        return (
+          <BarChart data={data}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey={index} tick={{ fontSize: 12 }} />
+            <YAxis tick={{ fontSize: 12 }} />
+            <Tooltip formatter={(value: any) => valueFormatter(value)} />
+            <Legend />
+            {categories?.map((category, i) => (
+              <Bar
+                key={category}
+                dataKey={category}
+                fill={colors[i % colors.length]}
+                radius={[4, 4, 0, 0]}
+              />
+            ))}
+          </BarChart>
+        );
 
-  // If categories are not provided but dataKey is, create categories from dataKey and additionalDataKeys
-  const derivedCategories = !categories && dataKey ? 
-    [dataKey, ...(additionalDataKeys || [])] : 
-    categories;
+      case 'area':
+        return (
+          <AreaChart data={data}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey={index} tick={{ fontSize: 12 }} />
+            <YAxis tick={{ fontSize: 12 }} />
+            <Tooltip formatter={(value: any) => valueFormatter(value)} />
+            <Legend />
+            {categories?.map((category, i) => (
+              <Area
+                key={category}
+                type="monotone"
+                dataKey={category}
+                fill={colors[i % colors.length]}
+                stroke={colors[i % colors.length]}
+                fillOpacity={0.3}
+              />
+            ))}
+          </AreaChart>
+        );
 
-  switch (type) {
-    case 'bar':
-      return (
-        <BarChart
-          data={data}
-          index={index}
-          categories={derivedCategories || []}
-          colors={colors}
-          valueFormatter={formatter}
-          className={className}
-        />
-      );
-    case 'line':
-      return (
-        <LineChart
-          data={data}
-          index={index}
-          categories={derivedCategories || []}
-          colors={colors}
-          valueFormatter={formatter}
-          className={className}
-          showLegend
-          showGridLines
-          curveType="monotone"
-          connectNulls
-        />
-      );
-    case 'area':
-      return (
-        <AreaChart
-          data={data}
-          index={index}
-          categories={derivedCategories || []}
-          colors={colors}
-          valueFormatter={formatter}
-          className={className}
-          showLegend
-          showGridLines
-          connectNulls
-        />
-      );
-    case 'pie':
-      return (
-        <PieChart
-          data={data}
-          index={index}
-          category={dataKey || "value"}
-          colors={colors}
-          valueFormatter={formatter}
-          className={className}
-          showLabel
-          showTooltip
-        />
-      );
-    case 'donut':
-      return (
-        <DonutChart
-          data={data}
-          index={index}
-          category={dataKey || "value"}
-          colors={colors}
-          valueFormatter={formatter}
-          className={className}
-          showLabel
-          showTooltip
-        />
-      );
-    default:
-      return <div>Chart type not supported</div>;
-  }
-}
+      case 'pie':
+        return (
+          <PieChart>
+            <Pie
+              data={data}
+              cx="50%"
+              cy="50%"
+              labelLine={false}
+              outerRadius={80}
+              fill="#8884d8"
+              dataKey={categories ? categories[0] : "value"}
+              nameKey={index}
+              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+            >
+              {data.map((entry, i) => (
+                <Cell key={`cell-${i}`} fill={colors[i % colors.length]} />
+              ))}
+            </Pie>
+            <Tooltip formatter={(value: any) => valueFormatter(value)} />
+            <Legend />
+          </PieChart>
+        );
+
+      default:
+        return <div>Chart type not supported</div>;
+    }
+  };
+
+  return (
+    <div className={className}>
+      <ResponsiveContainer width="100%" height="100%">
+        {renderChart()}
+      </ResponsiveContainer>
+    </div>
+  );
+};
+
+export default FinancialChart;
