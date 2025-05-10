@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './AuthContext';
@@ -227,43 +226,72 @@ export const ChatbotProvider = ({ children }: ChatbotProviderProps) => {
     try {
       console.log("Attempting to delete conversation:", id);
       
-      // First get all message IDs for this conversation
-      const { data: messageIds, error: fetchError } = await supabase
-        .from('chat_messages')
-        .select('id')
-        .eq('conversation_id', id);
+      // First, delete all messages using a direct SQL delete to avoid foreign key issues
+      const { error: messagesDeleteError } = await supabase
+        .rpc('delete_conversation_messages', { conversation_id_param: id });
         
-      if (fetchError) {
-        console.error("Error fetching messages to delete:", fetchError);
-        throw new Error(`Error fetching messages: ${fetchError.message}`);
-      }
-      
-      console.log(`Found ${messageIds?.length || 0} messages to delete`);
-      
-      // If there are messages, delete them one by one to avoid constraint issues
-      if (messageIds && messageIds.length > 0) {
-        for (const message of messageIds) {
-          const { error: singleMessageError } = await supabase
-            .from('chat_messages')
-            .delete()
-            .eq('id', message.id);
-            
-          if (singleMessageError) {
-            console.error(`Error deleting message ${message.id}:`, singleMessageError);
-            throw new Error(`Error deleting message: ${singleMessageError.message}`);
-          }
+      if (messagesDeleteError) {
+        console.error("Error deleting messages with RPC:", messagesDeleteError);
+        
+        // Fallback method: Delete messages one by one
+        console.log("Trying fallback method: Delete messages one by one");
+        
+        // Get all messages for this conversation
+        const { data: messages, error: fetchError } = await supabase
+          .from('chat_messages')
+          .select('id')
+          .eq('conversation_id', id);
+          
+        if (fetchError) {
+          console.error("Error fetching messages to delete:", fetchError);
+          throw new Error(`Error fetching messages: ${fetchError.message}`);
         }
+        
+        console.log(`Found ${messages?.length || 0} messages to delete`);
+        
+        // Delete each message individually
+        if (messages && messages.length > 0) {
+          for (const message of messages) {
+            const { error: deleteError } = await supabase
+              .from('chat_messages')
+              .delete()
+              .eq('id', message.id);
+              
+            if (deleteError) {
+              console.error(`Error deleting message ${message.id}:`, deleteError);
+              throw new Error(`Error deleting message: ${deleteError.message}`);
+            }
+          }
+          
+          console.log("All messages deleted successfully");
+        }
+      } else {
+        console.log("Messages deleted successfully using RPC");
       }
       
-      // Now that all messages are deleted, delete the conversation
-      const { error } = await supabase
+      // Add a small delay to ensure all message deletions are processed
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Now delete the conversation
+      const { error: conversationError } = await supabase
         .from('chat_conversations')
         .delete()
         .eq('id', id);
         
-      if (error) {
-        console.error("Error deleting conversation:", error);
-        throw new Error(`Error deleting conversation: ${error.message}`);
+      if (conversationError) {
+        console.error("Error deleting conversation:", conversationError);
+        
+        // If there's still a foreign key error, query for remaining messages
+        if (conversationError.code === '23503') {
+          const { data: remainingMessages } = await supabase
+            .from('chat_messages')
+            .select('id')
+            .eq('conversation_id', id);
+            
+          console.error(`Foreign key constraint error. ${remainingMessages?.length || 0} messages still linked to conversation.`);
+        }
+        
+        throw new Error(`Error deleting conversation: ${conversationError.message}`);
       }
       
       // If we deleted the active conversation, select a new one
@@ -283,6 +311,7 @@ export const ChatbotProvider = ({ children }: ChatbotProviderProps) => {
         title: "Conversation deleted",
         description: "The conversation has been deleted successfully"
       });
+      
     } catch (error) {
       console.error("Error deleting conversation:", error);
       toast({
