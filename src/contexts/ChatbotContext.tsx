@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './AuthContext';
@@ -226,18 +227,35 @@ export const ChatbotProvider = ({ children }: ChatbotProviderProps) => {
     try {
       console.log("Attempting to delete conversation:", id);
       
-      // First delete all messages associated with the conversation
-      const { error: messagesError } = await supabase
+      // First get all message IDs for this conversation
+      const { data: messageIds, error: fetchError } = await supabase
         .from('chat_messages')
-        .delete()
+        .select('id')
         .eq('conversation_id', id);
         
-      if (messagesError) {
-        console.error("Error deleting messages:", messagesError);
-        throw new Error(`Error deleting messages: ${messagesError.message}`);
+      if (fetchError) {
+        console.error("Error fetching messages to delete:", fetchError);
+        throw new Error(`Error fetching messages: ${fetchError.message}`);
       }
       
-      // Then delete the conversation
+      console.log(`Found ${messageIds?.length || 0} messages to delete`);
+      
+      // If there are messages, delete them one by one to avoid constraint issues
+      if (messageIds && messageIds.length > 0) {
+        for (const message of messageIds) {
+          const { error: singleMessageError } = await supabase
+            .from('chat_messages')
+            .delete()
+            .eq('id', message.id);
+            
+          if (singleMessageError) {
+            console.error(`Error deleting message ${message.id}:`, singleMessageError);
+            throw new Error(`Error deleting message: ${singleMessageError.message}`);
+          }
+        }
+      }
+      
+      // Now that all messages are deleted, delete the conversation
       const { error } = await supabase
         .from('chat_conversations')
         .delete()
