@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
@@ -48,7 +49,7 @@ serve(async (req) => {
     }
 
     const requestBody = {
-      model: "mistralai/mistral-7b-instruct:free", // Using a free model
+      model: "mistralai/mistral-7b-instruct:free", // Using the specified free model
       messages: formattedMessages,
       max_tokens: 1000,
       temperature: 0.7,
