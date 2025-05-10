@@ -224,13 +224,18 @@ export const ChatbotProvider = ({ children }: ChatbotProviderProps) => {
   // Delete a conversation
   const deleteConversation = async (id: string): Promise<void> => {
     try {
-      // Delete associated messages first
+      console.log("Attempting to delete conversation:", id);
+      
+      // First delete all messages associated with the conversation
       const { error: messagesError } = await supabase
         .from('chat_messages')
         .delete()
         .eq('conversation_id', id);
         
-      if (messagesError) throw messagesError;
+      if (messagesError) {
+        console.error("Error deleting messages:", messagesError);
+        throw new Error(`Error deleting messages: ${messagesError.message}`);
+      }
       
       // Then delete the conversation
       const { error } = await supabase
@@ -238,7 +243,10 @@ export const ChatbotProvider = ({ children }: ChatbotProviderProps) => {
         .delete()
         .eq('id', id);
         
-      if (error) throw error;
+      if (error) {
+        console.error("Error deleting conversation:", error);
+        throw new Error(`Error deleting conversation: ${error.message}`);
+      }
       
       // If we deleted the active conversation, select a new one
       if (id === activeConversationId) {
@@ -264,6 +272,7 @@ export const ChatbotProvider = ({ children }: ChatbotProviderProps) => {
         description: error instanceof Error ? error.message : "Failed to delete conversation",
         variant: "destructive"
       });
+      throw error;
     }
   };
 
