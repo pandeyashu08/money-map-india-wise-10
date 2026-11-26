@@ -1,73 +1,127 @@
-# Welcome to your Lovable project
+# 💰 MoneyMap — Personal Finance Dashboard
 
-## Project info
+MoneyMap is a **personal finance dashboard** that helps you **visualize, track, and manage your money with clarity**.  
+It combines **budget tracking**, **expense categorization**, and **financial insights** into a sleek, responsive interface.
 
-**URL**: https://lovable.dev/projects/24480e55-562d-4480-925a-ea72990cabbf
+---
 
-## How can I edit this code?
+## 🚀 Features
 
-There are several ways of editing your application.
+- 📊 **Interactive Dashboard** – View income, expenses, and savings at a glance.
+- 🏷 **Smart Categorization** – Automatically tag and organize transactions.
+- 📅 **Monthly & Yearly Views** – Track spending trends over time.
+- 📈 **Financial Goals** – Set and monitor your savings targets.
+- 🔒 **Secure & Private** – Your data is encrypted and stored safely.
+- ☁ **Cloud Sync** – Access your dashboard anywhere, anytime.
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/24480e55-562d-4480-925a-ea72990cabbf) and start prompting.
+## 🛠 Tech Stack
 
-Changes made via Lovable will be committed automatically to this repo.
+**Frontend:**
 
-**Use your preferred IDE**
+- [Next.js](https://nextjs.org/) (React framework)
+- [Tailwind CSS](https://tailwindcss.com/) for styling
+- [Chart.js](https://www.chartjs.org/) or [Recharts](https://recharts.org/) for visualizations
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+**Backend (via Next.js API Routes):**
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- [Prisma ORM](https://www.prisma.io/) for database management
+- [PostgreSQL](https://www.postgresql.org/) (or [MongoDB](https://www.mongodb.com/))
+- [JWT](https://jwt.io/) for authentication
 
-Follow these steps:
+---
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## 📦 Installation
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+Clone the repository
+git clone https://github.com/your-username/moneymap.git
+cd moneymap
 
-# Step 3: Install the necessary dependencies.
-npm i
+Install dependencies
+pnpm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+Create environment variables file
+touch .env
+
+Add the following to `.env`:
+DATABASE_URL=your_database_connection_string
+NEXTAUTH_SECRET=your_secret_key
+NEXTAUTH_URL=http://localhost:3000
+
+Run database migrations:
+npx prisma migrate dev
+
+Start the development server:
+pnpm dev
+
+or
 npm run dev
+
+---
+
+## 📂 Project Structure
+
+```text
+moneymap/
+├── prisma/         # Prisma schema & migrations
+├── public/         # Static assets (icons, images, etc.)
+├── src/
+│   ├── app/        # App Router pages, layouts, and API routes
+│   ├── components/ # Reusable UI components
+│   ├── lib/        # Utility functions (database client, helpers)
+│   └── styles/     # Global styles and Tailwind CSS config
+├── .env.local      # Local environment variables (untracked)
+├── package.json
+└── README.md
 ```
 
-**Edit a file directly in GitHub**
+---
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 📜 Development Scripts
 
-**Use GitHub Codespaces**
+| Command       | Description               |
+| ------------- | ------------------------- |
+| `pnpm dev`    | Start development server  |
+| `pnpm build`  | Build for production      |
+| `pnpm start`  | Start production server   |
+| `pnpm lint`   | Run ESLint checks         |
+| `pnpm format` | Format code with Prettier |
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+---
 
-## What technologies are used for this project?
+## 📸 Screenshots
 
-This project is built with:
+<p>
+<img width="1600" height="800" alt="dashboard" src="https://github.com/user-attachments/assets/01a28151-d59c-4dfe-ab77-0fd733a705fa" />
+</p>
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+<p>
+<img width="1600" height="800" alt="investment_planning" src="https://github.com/user-attachments/assets/af188312-675b-42e9-8e59-d04624193809" />
+</p>
 
-## How can I deploy this project?
+<p>
+<img width="1600" height="800" alt="expense_tracker" src="https://github.com/user-attachments/assets/3a9f8fef-8ca7-4c0e-8a41-fd8b109a9fd6" />
+</p>
+---
 
-Simply open [Lovable](https://lovable.dev/projects/24480e55-562d-4480-925a-ea72990cabbf) and click on Share -> Publish.
+## 🛡 Security
 
-## Can I connect a custom domain to my Lovable project?
+- **Sensitive data is encrypted before storage**
+- **JWT-based authentication** for API security
+- **Role-based access control** for multi-user setups
 
-Yes it is!
+---
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 🤝 Contributing
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Pull requests are welcome!  
+If you have suggestions for new features or improvements:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature-name`)
+3. Commit your changes (`git commit -m "Add new feature"`)
+4. Push to your branch (`git push origin feature-name`)
+5. Open a Pull Request 🎉
+
+---
