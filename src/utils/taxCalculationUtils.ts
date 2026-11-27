@@ -1,28 +1,29 @@
-import { formatCurrency } from './financialUtils';
-
-type AgeGroup = 'below60' | '60to80' | 'above80';
+type AgeGroup = "below60" | "60to80" | "above80";
 
 /**
  * Calculate tax under old regime
  */
-export const calculateOldRegimeTax = (taxableIncome: number, ageGroup: AgeGroup): number => {
+export const calculateOldRegimeTax = (
+  taxableIncome: number,
+  ageGroup: AgeGroup
+): number => {
   let tax = 0;
-  
+
   // Set exemption limit based on age
   let exemptionLimit = 250000; // Below 60
-  if (ageGroup === '60to80') {
+  if (ageGroup === "60to80") {
     exemptionLimit = 300000;
-  } else if (ageGroup === 'above80') {
+  } else if (ageGroup === "above80") {
     exemptionLimit = 500000;
   }
-  
+
   // If income is below exemption limit, no tax
   if (taxableIncome <= exemptionLimit) {
     return 0;
   }
-  
+
   // Calculate tax based on slabs
-  if (ageGroup === 'below60' || ageGroup === '60to80') {
+  if (ageGroup === "below60" || ageGroup === "60to80") {
     if (taxableIncome > 1000000) {
       tax = (taxableIncome - 1000000) * 0.3 + 112500;
     } else if (taxableIncome > 500000) {
@@ -30,14 +31,14 @@ export const calculateOldRegimeTax = (taxableIncome: number, ageGroup: AgeGroup)
     } else if (taxableIncome > exemptionLimit) {
       tax = (taxableIncome - exemptionLimit) * 0.05;
     }
-  } else if (ageGroup === 'above80') {
+  } else if (ageGroup === "above80") {
     if (taxableIncome > 1000000) {
       tax = (taxableIncome - 1000000) * 0.3 + 100000;
     } else if (taxableIncome > 500000) {
       tax = (taxableIncome - 500000) * 0.2;
     }
   }
-  
+
   return Math.round(tax);
 };
 
@@ -46,7 +47,7 @@ export const calculateOldRegimeTax = (taxableIncome: number, ageGroup: AgeGroup)
  */
 export const calculateNewRegimeTax = (taxableIncome: number): number => {
   let tax = 0;
-  
+
   // New regime slabs (AY 2026-27)
   if (taxableIncome > 2400000) {
     tax = (taxableIncome - 2400000) * 0.3 + 400000;
@@ -61,7 +62,7 @@ export const calculateNewRegimeTax = (taxableIncome: number): number => {
   } else if (taxableIncome > 400000) {
     tax = (taxableIncome - 400000) * 0.05;
   }
-  
+
   return Math.round(tax);
 };
 
@@ -70,7 +71,7 @@ export const calculateNewRegimeTax = (taxableIncome: number): number => {
  */
 export const calculateSurcharge = (tax: number, income: number): number => {
   let surcharge = 0;
-  
+
   if (income > 50000000) {
     // Income > 5 crore: 37% surcharge
     surcharge = tax * 0.37;
@@ -84,25 +85,29 @@ export const calculateSurcharge = (tax: number, income: number): number => {
     // Income > 50 lakh: 10% surcharge
     surcharge = tax * 0.1;
   }
-  
+
   return Math.round(surcharge);
 };
 
 /**
  * Calculate rebate under section 87A
  */
-export const calculateRebate = (tax: number, income: number, isNewRegime: boolean): number => {
+export const calculateRebate = (
+  tax: number,
+  income: number,
+  isNewRegime: boolean
+): number => {
   // No rebate if tax is 0
   if (tax === 0) return 0;
-  
+
   // Different income limits for old and new regime
   const incomeLimit = isNewRegime ? 1200000 : 500000;
   const maxRebate = isNewRegime ? 60000 : 12500;
-  
+
   if (income <= incomeLimit) {
     return Math.min(tax, maxRebate);
   }
-  
+
   return 0;
 };
 
@@ -119,22 +124,26 @@ export const calculateHRAExemption = (
   if (rentPaid <= basicSalary * 0.1) {
     return 0;
   }
-  
+
   // Calculate exemption based on three conditions, minimum is the exemption
   const exemption1 = hraReceived;
-  const exemption2 = rentPaid - (0.1 * basicSalary);
-  const exemption3 = isMetroCity ? (0.5 * basicSalary) : (0.4 * basicSalary);
-  
+  const exemption2 = rentPaid - 0.1 * basicSalary;
+  const exemption3 = isMetroCity ? 0.5 * basicSalary : 0.4 * basicSalary;
+
   return Math.min(exemption1, exemption2, exemption3);
 };
 
 /**
  * Calculate marginal relief for income just above rebate limit
  */
-export const calculateMarginalRelief = (tax: number, income: number, isNewRegime: boolean): number => {
+export const calculateMarginalRelief = (
+  tax: number,
+  income: number,
+  isNewRegime: boolean
+): number => {
   const rebateLimit = isNewRegime ? 1200000 : 500000;
   const additionalIncome = income - rebateLimit;
-  
+
   // Only apply marginal relief for incomes just above rebate limit (within 50,000)
   if (additionalIncome > 0 && additionalIncome < 50000) {
     // Calculate marginal relief
@@ -143,7 +152,7 @@ export const calculateMarginalRelief = (tax: number, income: number, isNewRegime
       return tax - limitExcess;
     }
   }
-  
+
   return 0;
 };
 
@@ -154,22 +163,22 @@ export const calculateMarginalRelief = (tax: number, income: number, isNewRegime
 export const formatIndianCurrency = (value: number): string => {
   // Convert to string
   const numStr = value.toString();
-  
+
   // Handle numbers less than 1000
   if (value < 1000) {
     return numStr;
   }
-  
+
   // Extract last 3 digits
   const lastThree = numStr.substring(numStr.length - 3);
-  
+
   // Extract other digits
   const otherNumbers = numStr.substring(0, numStr.length - 3);
-  
+
   // Format with commas
-  if (otherNumbers !== '') {
-    return otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ',') + ',' + lastThree;
+  if (otherNumbers !== "") {
+    return otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + "," + lastThree;
   }
-  
+
   return lastThree;
 };
